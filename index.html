@@ -9,7 +9,7 @@
         .page { display: none; padding-bottom: 100px; }
         .active { display: block; }
         
-        /* 1. 頂部區 (限制佔 1/3 螢幕高度，不滑動) */
+        /* 1. 頂部區 (限制佔 1/3 螢幕高度) */
         .header-box { 
             background: #fdf2f5; 
             color: #333; 
@@ -18,15 +18,15 @@
             top: 0; 
             z-index: 100; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            height: 33vh; /* 固定 1/3 高度 */
+            max-height: 33vh; 
             box-sizing: border-box;
-            overflow: hidden; /* 禁止滑動 */
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
         .section-label { font-size: 11px; color: #64748b; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; }
         
-        #header-display { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        #header-display { flex: 1; display: flex; flex-direction: column; }
 
         /* 2. 通用列表比例佈局 (1/8 比例) */
         .item-row { display: flex; align-items: center; padding: 16px 0; border-bottom: 1px solid #f1f5f9; background: white; width: 100%; }
@@ -34,27 +34,29 @@
         .text-zone { width: 75%; text-align: center; font-size: 15px; font-weight: 500; padding: 0 5px; box-sizing: border-box; word-break: break-all; }
         .side-zone { width: 12.5%; font-size: 15px; font-weight: bold; text-align: center; flex-shrink: 0; color: #333; }
 
-        /* 頂部行程專用樣式 (縮減間距以符合 1/3 高度) */
+        /* 頂部行程專用樣式 */
         .header-row { 
             background: rgba(255,255,255,0.6); 
             border-bottom: 1px solid rgba(0,0,0,0.05); 
             border-radius: 8px; 
             margin-bottom: 4px; 
             color: #333; 
-            padding: 8px 0; /* 縮小內距 */
-            flex: 1; /* 平分剩餘高度 */
+            padding: 10px 0;
             display: flex;
             align-items: center;
+            flex-shrink: 0;
         }
         .header-row.done { opacity: 0.4; background: rgba(0,0,0,0.05); }
         .checkbox-custom { width: 20px; height: 20px; cursor: pointer; accent-color: #f472b6; }
 
-        /* 3. 按鈕區 */
+        /* 3. 按鈕區與摺疊按鈕樣式 */
         .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px 15px 5px 15px; }
         .call-btn { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; text-decoration: none; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .call-btn div { font-size: 20px; margin-bottom: 4px; color: #f472b6; }
         .call-btn b { color: #f472b6; }
+        
         .more-toggle { text-align: center; padding: 5px 15px 15px; color: #f472b6; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .header-toggle { padding: 5px 0 0 0; font-size: 12px; color: #f472b6; text-align: center; cursor: pointer; font-weight: bold; flex-shrink: 0; }
 
         /* 4. 清單區 */
         .section-title { padding: 15px; font-weight: bold; color: #64748b; font-size: 13px; text-transform: uppercase; }
@@ -83,13 +85,14 @@
 
     <div id="execPage" class="page active">
         <div class="header-box" id="exec-header">
-            <div class="section-label">📍 今日行程 (5)</div>
+            <div class="section-label">📍 今日行程</div>
             <div id="header-display"></div>
+            <div id="header-toggle-btn" class="header-toggle" onclick="toggleHeader()">更多 ></div>
         </div>
         
         <div id="contact-area">
             <div class="btn-grid" id="contact-display"></div>
-            <div class="more-toggle" id="toggle-btn" onclick="toggleContacts()">更多 ></div>
+            <div class="more-toggle" id="contact-toggle-btn" onclick="toggleContacts()">更多 ></div>
         </div>
 
         <div class="section-title">物資與備忘清單</div>
@@ -142,7 +145,8 @@
     </nav>
 
     <script>
-        let isExpanded = false;
+        let isContactExpanded = false;
+        let isHeaderExpanded = false;
         
         const defaultDB = {
             headers: [
@@ -160,14 +164,10 @@
                 { id: 112, name: "入席/婚宴正式開始", time: "20:00", done: false }
             ],
             contacts: [
-                { id: 201, name: "伴郎 (總管)", tel: "" },
-                { id: 202, name: "伴娘 (貼身)", tel: "" },
-                { id: 203, name: "證婚律師", tel: "" },
-                { id: 204, name: "新娘媽媽", tel: "" },
-                { id: 205, name: "新郎媽媽", tel: "" },
-                { id: 206, name: "花車司機", tel: "" },
-                { id: 207, name: "化妝師", tel: "" },
-                { id: 208, name: "攝影師", tel: "" },
+                { id: 201, name: "伴郎 (總管)", tel: "" }, { id: 202, name: "伴娘 (貼身)", tel: "" },
+                { id: 203, name: "證婚律師", tel: "" }, { id: 204, name: "新娘媽媽", tel: "" },
+                { id: 205, name: "新郎媽媽", tel: "" }, { id: 206, name: "花車司機", tel: "" },
+                { id: 207, name: "化妝師", tel: "" }, { id: 208, name: "攝影師", tel: "" },
                 { id: 209, name: "酒樓經理", tel: "" }
             ],
             tasks: [
@@ -185,7 +185,7 @@
             ]
         };
 
-        let db = JSON.parse(localStorage.getItem('wedding_v13_db')) || defaultDB;
+        let db = JSON.parse(localStorage.getItem('wedding_v14_db')) || defaultDB;
 
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -196,15 +196,13 @@
             window.scrollTo(0, 0);
         }
 
-        function toggleContacts() { isExpanded = !isExpanded; renderExec(); }
+        function toggleContacts() { isContactExpanded = !isContactExpanded; renderExec(); }
+        function toggleHeader() { isHeaderExpanded = !isHeaderExpanded; renderExec(); }
 
         function renderExec() {
-            // --- 頂部行程邏輯：精確顯示5個並填滿高度 ---
+            // --- 頂部行程渲染邏輯 ---
             let allHeaders = [...db.headers].sort((a,b) => a.time.localeCompare(b.time));
-            let doneHeaders = allHeaders.filter(h => h.done);
-            let todoHeaders = allHeaders.filter(h => !h.done);
-            let displayHeaders = doneHeaders.length ? [doneHeaders[doneHeaders.length - 1]] : [];
-            displayHeaders = displayHeaders.concat(todoHeaders).slice(0, 5);
+            let displayHeaders = isHeaderExpanded ? allHeaders : allHeaders.slice(0, 4);
 
             document.getElementById('header-display').innerHTML = displayHeaders.map(h => `
                 <div class="item-row header-row ${h.done ? 'done' : ''}" onclick="toggleDone('headers', ${h.id})">
@@ -214,17 +212,21 @@
                 </div>
             `).join('');
 
-            // 聯絡人按鈕
-            let displayContacts = isExpanded ? db.contacts : db.contacts.slice(0, 3);
+            const hToggleBtn = document.getElementById('header-toggle-btn');
+            if (allHeaders.length <= 4) { hToggleBtn.style.display = 'none'; } 
+            else { hToggleBtn.style.display = 'block'; hToggleBtn.innerText = isHeaderExpanded ? "< 隱藏" : "更多 >"; }
+
+            // 聯絡人渲染
+            let displayContacts = isContactExpanded ? db.contacts : db.contacts.slice(0, 3);
             document.getElementById('contact-display').innerHTML = displayContacts.map(c => `
                 <a href="tel:${c.tel}" class="call-btn"><div>📞</div><b>${c.name}</b></a>
             `).join('');
             
-            const toggleBtn = document.getElementById('toggle-btn');
-            if (db.contacts.length <= 3) { toggleBtn.style.display = 'none'; } 
-            else { toggleBtn.style.display = 'block'; toggleBtn.innerText = isExpanded ? "< 隱藏" : "更多 >"; }
+            const cToggleBtn = document.getElementById('contact-toggle-btn');
+            if (db.contacts.length <= 3) { cToggleBtn.style.display = 'none'; } 
+            else { cToggleBtn.style.display = 'block'; cToggleBtn.innerText = isContactExpanded ? "< 隱藏" : "更多 >"; }
 
-            // 物資清單
+            // 物資清單渲染
             let sortedTasks = [...db.tasks].sort((a,b) => a.done - b.done);
             document.getElementById('list-view').innerHTML = sortedTasks.map(t => `
                 <div class="item-row ${t.done ? 'done' : ''}" onclick="toggleDone('tasks', ${t.id})">
@@ -281,7 +283,7 @@
             item.done = !item.done; renderExec();
         }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v13_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v14_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
