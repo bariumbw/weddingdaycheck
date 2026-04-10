@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統 V11 (1/3 佔比版)</title>
+    <title>婚禮指揮部系統 V12 (完整資料還原版)</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
@@ -18,8 +18,8 @@
             top: 0; 
             z-index: 100; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            max-height: 33vh; /* 限制高度為螢幕的 33% */
-            overflow-y: auto; /* 內容過多時可內部滾動 */
+            max-height: 33vh; 
+            overflow-y: auto; 
         }
         .section-label { font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
         
@@ -27,7 +27,7 @@
         .item-row { display: flex; align-items: center; padding: 16px 0; border-bottom: 1px solid #f1f5f9; background: white; width: 100%; }
         .check-zone { width: 12.5%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
         .text-zone { width: 75%; text-align: center; font-size: 15px; font-weight: 500; padding: 0 5px; box-sizing: border-box; word-break: break-all; }
-        .side-zone { width: 12.5%; font-size: 15px; font-weight: bold; text-align: center; flex-shrink: 0; color: #333; } /* 時間與文字同大 */
+        .side-zone { width: 12.5%; font-size: 15px; font-weight: bold; text-align: center; flex-shrink: 0; color: #333; }
 
         .header-row { background: rgba(255,255,255,0.6); border-bottom: 1px solid rgba(0,0,0,0.05); border-radius: 8px; margin-bottom: 6px; color: #333; padding: 12px 0; }
         .header-row.done { opacity: 0.4; background: rgba(0,0,0,0.05); }
@@ -53,7 +53,7 @@
         .btn-add { background: #f472b6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin: 10px 0; cursor: pointer; }
         .btn-del { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
 
-        /* 固定保存按鈕區域 */
+        /* 固定保存按鈕 */
         .sticky-save-bar { position: fixed; bottom: 70px; left: 0; width: 100%; padding: 15px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); box-sizing: border-box; border-top: 1px solid #eee; z-index: 90; }
         .btn-save { background: #10b981; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; width: 100%; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
 
@@ -79,7 +79,7 @@
         <div class="section-title">物資與備忘清單</div>
         <div id="list-view" class="list-container"></div>
         <div style="background: #fffbeb; border-left: 4px solid #fbbf24; margin: 20px 15px; padding: 15px; border-radius: 0 12px 12px 0; font-size: 13px; color: #92400e; margin-bottom: 20px;">
-            <b>💡 專家叮嚀：</b> 記得因應實際情況調整喔！
+            <b>💡 專家叮嚀：</b> 這份完整清單已備妥，請按需求在「編輯」頁面微調！
         </div>
     </div>
 
@@ -128,31 +128,48 @@
     <script>
         let isExpanded = false;
         
-        let defaultDB = {
+        const defaultDB = {
             headers: [
                 { id: 101, name: "化妝師到達新娘房", time: "06:30", done: false },
                 { id: 102, name: "攝影師到達/拍攝花絮", time: "07:30", done: false },
                 { id: 103, name: "姊妹/兄弟團集合", time: "08:00", done: false },
-                { id: 104, name: "新郎玩接新娘遊戲", time: "08:45", done: false },
-                { id: 105, name: "新人出門/起程往男家", time: "10:30", done: false },
-                { id: 106, name: "男家敬茶儀式", time: "11:30", done: false },
-                { id: 107, name: "綵排儀式 (新人/證婚人)", time: "16:00", done: false }
+                { id: 104, name: "新郎到達及玩接新娘遊戲", time: "08:45", done: false },
+                { id: 105, name: "新人敬茶給女方家長", time: "09:45", done: false },
+                { id: 106, name: "新人出門/起程往男家", time: "10:30", done: false },
+                { id: 107, name: "男家敬茶/入伙儀式", time: "11:30", done: false },
+                { id: 108, name: "到達酒樓/酒店場地", time: "14:00", done: false },
+                { id: 109, name: "綵排儀式 (新人/證婚人)", time: "16:00", done: false },
+                { id: 110, name: "賓客迎賓/麻雀時間", time: "17:30", done: false },
+                { id: 111, name: "證婚儀式開始", time: "18:30", done: false },
+                { id: 112, name: "入席/婚宴正式開始", time: "20:00", done: false }
             ],
             contacts: [
-                { id: 201, name: "伴郎 (總管)", tel: "" }, { id: 202, name: "伴娘 (貼身)", tel: "" },
-                { id: 203, name: "證婚律師", tel: "" }, { id: 204, name: "新娘媽媽", tel: "" },
-                { id: 205, name: "新郎媽媽", tel: "" }, { id: 206, name: "化妝師", tel: "" }
+                { id: 201, name: "伴郎 (總管)", tel: "" },
+                { id: 202, name: "伴娘 (貼身)", tel: "" },
+                { id: 203, name: "證婚律師", tel: "" },
+                { id: 204, name: "新娘媽媽", tel: "" },
+                { id: 205, name: "新郎媽媽", tel: "" },
+                { id: 206, name: "花車司機", tel: "" },
+                { id: 207, name: "化妝師", tel: "" },
+                { id: 208, name: "攝影師", tel: "" },
+                { id: 209, name: "酒樓經理", tel: "" }
             ],
             tasks: [
                 { id: 301, name: "新人身份證 (證婚用)", done: false },
                 { id: 302, name: "結婚戒指 (兩枚)", done: false },
                 { id: 303, name: "紅封包 (各類利是)", done: false },
                 { id: 304, name: "敬茶茶具/紅棗/蓮子", done: false },
-                { id: 305, name: "USB (早拍晚播影片)", done: false }
+                { id: 305, name: "金器/首飾 (點算清單)", done: false },
+                { id: 306, name: "婚紗/晚裝/西裝 (全套)", done: false },
+                { id: 307, name: "平底拖鞋/波鞋 (替換用)", done: false },
+                { id: 308, name: "針線包/安全針", done: false },
+                { id: 309, name: "龍鳳燭/上頭用品", done: false },
+                { id: 310, name: "賓客名單/座位表印本", done: false },
+                { id: 311, name: "USB (早拍晚播/背景音樂)", done: false }
             ]
         };
 
-        let db = JSON.parse(localStorage.getItem('wedding_v11_db')) || defaultDB;
+        let db = JSON.parse(localStorage.getItem('wedding_v12_db')) || defaultDB;
 
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -166,12 +183,11 @@
         function toggleContacts() { isExpanded = !isExpanded; renderExec(); }
 
         function renderExec() {
-            // --- 頂部行程邏輯 (文字時間同大) ---
             let allHeaders = [...db.headers].sort((a,b) => a.time.localeCompare(b.time));
             let doneHeaders = allHeaders.filter(h => h.done);
             let todoHeaders = allHeaders.filter(h => !h.done);
             let displayHeaders = doneHeaders.length ? [doneHeaders[doneHeaders.length - 1]] : [];
-            displayHeaders = displayHeaders.concat(todoHeaders).slice(0, 5);
+            displayHeaders = displayHeaders.concat(todoHeaders).slice(0, 15); // 指揮部顯示更多以便滾動
 
             document.getElementById('header-display').innerHTML = displayHeaders.map(h => `
                 <div class="item-row header-row ${h.done ? 'done' : ''}" onclick="toggleDone('headers', ${h.id})">
@@ -181,7 +197,6 @@
                 </div>
             `).join('');
 
-            // 聯絡人按鈕
             let displayContacts = isExpanded ? db.contacts : db.contacts.slice(0, 3);
             document.getElementById('contact-display').innerHTML = displayContacts.map(c => `
                 <a href="tel:${c.tel}" class="call-btn"><div>📞</div><b>${c.name}</b></a>
@@ -191,7 +206,6 @@
             if (db.contacts.length <= 3) { toggleBtn.style.display = 'none'; } 
             else { toggleBtn.style.display = 'block'; toggleBtn.innerText = isExpanded ? "< 隱藏" : "更多 >"; }
 
-            // 物資清單
             let sortedTasks = [...db.tasks].sort((a,b) => a.done - b.done);
             document.getElementById('list-view').innerHTML = sortedTasks.map(t => `
                 <div class="item-row ${t.done ? 'done' : ''}" onclick="toggleDone('tasks', ${t.id})">
@@ -248,7 +262,7 @@
             item.done = !item.done; renderExec();
         }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v11_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v12_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
