@@ -3,33 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統 V12 (完整資料還原版)</title>
+    <title>婚禮指揮部系統 V13</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
         .active { display: block; }
         
-        /* 1. 頂部區 (限制佔 1/3 螢幕高度) */
+        /* 1. 頂部區 (限制佔 1/3 螢幕高度，不滑動) */
         .header-box { 
             background: #fdf2f5; 
             color: #333; 
-            padding: 15px; 
+            padding: 10px 15px; 
             position: sticky; 
             top: 0; 
             z-index: 100; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            max-height: 33vh; 
-            overflow-y: auto; 
+            height: 33vh; /* 固定 1/3 高度 */
+            box-sizing: border-box;
+            overflow: hidden; /* 禁止滑動 */
+            display: flex;
+            flex-direction: column;
         }
-        .section-label { font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+        .section-label { font-size: 11px; color: #64748b; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; }
         
+        #header-display { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+
         /* 2. 通用列表比例佈局 (1/8 比例) */
         .item-row { display: flex; align-items: center; padding: 16px 0; border-bottom: 1px solid #f1f5f9; background: white; width: 100%; }
         .check-zone { width: 12.5%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
         .text-zone { width: 75%; text-align: center; font-size: 15px; font-weight: 500; padding: 0 5px; box-sizing: border-box; word-break: break-all; }
         .side-zone { width: 12.5%; font-size: 15px; font-weight: bold; text-align: center; flex-shrink: 0; color: #333; }
 
-        .header-row { background: rgba(255,255,255,0.6); border-bottom: 1px solid rgba(0,0,0,0.05); border-radius: 8px; margin-bottom: 6px; color: #333; padding: 12px 0; }
+        /* 頂部行程專用樣式 (縮減間距以符合 1/3 高度) */
+        .header-row { 
+            background: rgba(255,255,255,0.6); 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            border-radius: 8px; 
+            margin-bottom: 4px; 
+            color: #333; 
+            padding: 8px 0; /* 縮小內距 */
+            flex: 1; /* 平分剩餘高度 */
+            display: flex;
+            align-items: center;
+        }
         .header-row.done { opacity: 0.4; background: rgba(0,0,0,0.05); }
         .checkbox-custom { width: 20px; height: 20px; cursor: pointer; accent-color: #f472b6; }
 
@@ -169,7 +185,7 @@
             ]
         };
 
-        let db = JSON.parse(localStorage.getItem('wedding_v12_db')) || defaultDB;
+        let db = JSON.parse(localStorage.getItem('wedding_v13_db')) || defaultDB;
 
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -183,11 +199,12 @@
         function toggleContacts() { isExpanded = !isExpanded; renderExec(); }
 
         function renderExec() {
+            // --- 頂部行程邏輯：精確顯示5個並填滿高度 ---
             let allHeaders = [...db.headers].sort((a,b) => a.time.localeCompare(b.time));
             let doneHeaders = allHeaders.filter(h => h.done);
             let todoHeaders = allHeaders.filter(h => !h.done);
             let displayHeaders = doneHeaders.length ? [doneHeaders[doneHeaders.length - 1]] : [];
-            displayHeaders = displayHeaders.concat(todoHeaders).slice(0, 15); // 指揮部顯示更多以便滾動
+            displayHeaders = displayHeaders.concat(todoHeaders).slice(0, 5);
 
             document.getElementById('header-display').innerHTML = displayHeaders.map(h => `
                 <div class="item-row header-row ${h.done ? 'done' : ''}" onclick="toggleDone('headers', ${h.id})">
@@ -197,6 +214,7 @@
                 </div>
             `).join('');
 
+            // 聯絡人按鈕
             let displayContacts = isExpanded ? db.contacts : db.contacts.slice(0, 3);
             document.getElementById('contact-display').innerHTML = displayContacts.map(c => `
                 <a href="tel:${c.tel}" class="call-btn"><div>📞</div><b>${c.name}</b></a>
@@ -206,6 +224,7 @@
             if (db.contacts.length <= 3) { toggleBtn.style.display = 'none'; } 
             else { toggleBtn.style.display = 'block'; toggleBtn.innerText = isExpanded ? "< 隱藏" : "更多 >"; }
 
+            // 物資清單
             let sortedTasks = [...db.tasks].sort((a,b) => a.done - b.done);
             document.getElementById('list-view').innerHTML = sortedTasks.map(t => `
                 <div class="item-row ${t.done ? 'done' : ''}" onclick="toggleDone('tasks', ${t.id})">
@@ -262,7 +281,7 @@
             item.done = !item.done; renderExec();
         }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v12_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v13_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
