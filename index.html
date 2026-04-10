@@ -3,53 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統 V4</title>
+    <title>婚禮指揮部系統 V6 (粉色版)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #f8fafc; margin: 0; padding: 0; color: #1e293b; }
+        body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
         .active { display: block; }
         
-        /* 1. 頂部區 (滾動任務台) */
-        .header-box { background: #4f46e5; color: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2); }
-        .section-label { font-size: 11px; opacity: 0.8; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
+        /* 1. 頂部區 (改為粉色背景) */
+        .header-box { background: #fdf2f5; color: #333; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.05); }
+        .section-label { font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
         
-        /* 2. 通用列表樣式 (頂部行程與清單區共用) */
-        .item-row { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #f1f5f9; background: white; transition: 0.3s; }
-        .header-row { background: rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 8px; margin-bottom: 6px; padding: 12px; color: white; }
-        .header-row.done { opacity: 0.4; }
+        /* 2. 通用列表比例佈局 (1/8 比例) */
+        .item-row { 
+            display: flex; 
+            align-items: center; 
+            padding: 16px 0; 
+            border-bottom: 1px solid #f1f5f9; 
+            background: white; 
+            width: 100%;
+        }
         
-        .checkbox-left { width: 22px; height: 22px; margin-right: 15px; flex-shrink: 0; }
-        .text-center-box { flex: 1; text-align: center; font-size: 15px; font-weight: 500; }
-        .time-label { font-size: 12px; font-weight: bold; margin-left: 10px; width: 60px; text-align: right; }
+        /* 勾選區佔 1/8 */
+        .check-zone { 
+            width: 12.5%; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex-shrink: 0;
+        }
+        
+        /* 文字區佔 6/8 (75%) */
+        .text-zone { 
+            width: 75%; 
+            text-align: center; 
+            font-size: 15px; 
+            font-weight: 500;
+            padding: 0 5px;
+            box-sizing: border-box;
+            word-break: break-all;
+        }
+        
+        /* 右側區佔 1/8 (時間或對齊用) */
+        .side-zone { 
+            width: 12.5%; 
+            font-size: 12px; 
+            font-weight: bold; 
+            text-align: center;
+            flex-shrink: 0;
+            color: #64748b;
+        }
+
+        /* 頂部行程特殊樣式 (深灰色文字) */
+        .header-row { 
+            background: rgba(255,255,255,0.6); 
+            border-bottom: 1px solid rgba(0,0,0,0.05); 
+            border-radius: 8px; 
+            margin-bottom: 6px; 
+            color: #333; 
+        }
+        .header-row.done { opacity: 0.4; background: rgba(0,0,0,0.05); }
+        .header-row .checkbox-custom { border-color: #ddd; }
+        
+        .checkbox-custom { width: 20px; height: 20px; cursor: pointer; border-radius: 6px; border: 2px solid #ddd; accent-color: #f472b6; }
 
         /* 3. 按鈕區 */
         .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
-        .call-btn { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; text-decoration: none; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; }
-        .call-btn div { font-size: 20px; margin-bottom: 4px; }
+        .call-btn { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; text-decoration: none; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .call-btn div { font-size: 20px; margin-bottom: 4px; color: #f472b6; }
+        .call-btn b { color: #f472b6; }
 
         /* 4. 清單區 */
         .section-title { padding: 15px; font-weight: bold; color: #64748b; font-size: 13px; text-transform: uppercase; }
         .list-container { background: white; margin: 0 15px; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
-        .item-row.done span { text-decoration: line-through; opacity: 0.5; }
+        .item-row.done .text-zone span { text-decoration: line-through; opacity: 0.5; }
 
-        /* 管理頁面樣式 */
+        /* 管理頁面樣式 (按鈕改粉色) */
         .admin-section { background: white; margin: 15px; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }
         .edit-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
         input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
-        .btn-add { background: #4f46e5; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin: 10px 0; }
-        .btn-del { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; }
+        .btn-add { background: #f472b6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin: 10px 0; cursor: pointer; }
+        .btn-del { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
 
         /* 導覽列 */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #e2e8f0; display: flex; height: 70px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #94a3b8; border: none; background: none; }
-        .nav-item.active { color: #4f46e5; font-weight: bold; }
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #e2e8f0; display: flex; height: 70px; z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #94a3b8; border: none; background: none; cursor: pointer; }
+        .nav-item.active { color: #f472b6; font-weight: bold; }
+        .nav-icon { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
 
     <div id="execPage" class="page active">
         <div class="header-box">
-            <div class="section-label">📍 核心行程預覽</div>
+            <div class="section-label">📍 今日核心行程預覽 (5)</div>
             <div id="header-display"></div>
         </div>
 
@@ -64,10 +111,9 @@
     </div>
 
     <div id="adminPage" class="page">
-        <div style="padding: 20px; font-weight: bold; font-size: 20px;">⚙️ 指揮部設定</div>
-
+        <div style="padding: 20px; font-weight: bold; font-size: 20px;">⚙️ 指揮部系統設定</div>
         <div class="admin-section">
-            <h3>核心行程管理</h3>
+            <h3>行程管理</h3>
             <div id="edit-header-list"></div>
             <div class="edit-row">
                 <input type="text" id="new-h-name" placeholder="行程名稱">
@@ -75,9 +121,8 @@
             </div>
             <button class="btn-add" onclick="addItem('headers')">+ 新增核心行程</button>
         </div>
-
         <div class="admin-section">
-            <h3>快速撥號管理</h3>
+            <h3>聯絡人管理</h3>
             <div id="edit-contact-list"></div>
             <div class="edit-row">
                 <input type="text" id="new-c-name" placeholder="對象">
@@ -85,7 +130,6 @@
             </div>
             <button class="btn-add" onclick="addItem('contacts')">+ 新增聯絡人</button>
         </div>
-
         <div class="admin-section">
             <h3>物資清單管理</h3>
             <div id="edit-task-list"></div>
@@ -94,30 +138,27 @@
             </div>
             <button class="btn-add" onclick="addItem('tasks')">+ 新增清單項目</button>
         </div>
-        
-        <div style="padding: 0 15px 40px;">
-            <button class="btn-add" style="background:#10b981; padding: 18px;" onclick="saveAndGo()">✅ 儲存並返回指揮部</button>
-        </div>
+        <div style="padding: 0 15px 40px;"><button class="btn-add" style="background:#10b981; padding: 18px;" onclick="saveAndGo()">✅ 保存設定並返回指揮部</button></div>
     </div>
 
-    <div class="nav-bar">
+    <nav class="nav-bar">
         <button class="nav-item active" id="nav-home" onclick="showPage('execPage')">
-            <div style="font-size:20px">🏛️</div>指揮部
+            <div class="nav-icon">🏛️</div>指揮部
         </button>
         <button class="nav-item" id="nav-add" onclick="showPage('adminPage')">
-            <div style="font-size:20px">➕</div>編輯內容
+            <div class="nav-icon">➕</div>編輯內容
         </button>
-    </div>
+    </nav>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('wedding_v4_db')) || {
+        // 初始化數據結構 (粉色版)
+        let db = JSON.parse(localStorage.getItem('wedding_v6_db')) || {
             headers: [
-                { id: 1, name: "接新娘儀式", time: "08:30", done: false },
-                { id: 2, name: "敬茶給長輩", time: "09:15", done: false },
-                { id: 3, name: "出發往酒店", time: "10:00", done: false },
-                { id: 4, name: "酒店外景拍攝", time: "11:00", done: false },
-                { id: 5, name: "午休用餐", time: "12:30", done: false },
-                { id: 6, name: "晚宴彩排", time: "16:00", done: false }
+                { id: 1, name: "接新娘儀式 (需準備利是)", time: "08:30", done: false },
+                { id: 2, name: "敬茶給長輩 (需茶具茶葉)", time: "09:15", done: false },
+                { id: 3, name: "出發往酒店 (需清點物資)", time: "10:00", done: false },
+                { id: 4, name: "酒店外景拍攝 (需替換平底鞋)", time: "11:00", done: false },
+                { id: 5, name: "午休用餐 (新人記得休息)", time: "12:30", done: false }
             ],
             contacts: [
                 { id: 1, name: "找伴郎", tel: "12345678" },
@@ -126,7 +167,8 @@
             ],
             tasks: [
                 { id: 1, name: "戒指已交給伴郎", done: false },
-                { id: 2, name: "準備敬茶茶具", done: false }
+                { id: 2, name: "準備敬茶茶具", done: false },
+                { id: 3, name: "新娘替換平底鞋", done: false }
             ]
         };
 
@@ -135,106 +177,81 @@
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             document.getElementById(id === 'execPage' ? 'nav-home' : 'nav-add').classList.add('active');
-            if(id === 'execPage') renderExec();
-            if(id === 'adminPage') renderAdmin();
+            if(id === 'execPage') renderExec(); else renderAdmin();
         }
 
         function renderExec() {
-            // --- 頂部行程邏輯 ---
-            // 排序所有行程
+            // --- 頂部行程邏輯 (粉色版樣式) ---
             let allHeaders = [...db.headers].sort((a,b) => a.time.localeCompare(b.time));
             let doneHeaders = allHeaders.filter(h => h.done);
             let todoHeaders = allHeaders.filter(h => !h.done);
-            
-            // 規則：勾選後的只留「最晚」的一個，未勾選的顯示前幾個，總共最多 5 個
-            let displayHeaders = [];
-            if(doneHeaders.length > 0) {
-                displayHeaders.push(doneHeaders[doneHeaders.length - 1]); // 留最晚完成的一個
-            }
-            // 補充未完成的，直到滿 5 個
-            let remainingSpace = 5 - displayHeaders.length;
-            displayHeaders = displayHeaders.concat(todoHeaders.slice(0, remainingSpace));
+            let displayHeaders = doneHeaders.length ? [doneHeaders[doneHeaders.length - 1]] : [];
+            displayHeaders = displayHeaders.concat(todoHeaders).slice(0, 5);
 
             document.getElementById('header-display').innerHTML = displayHeaders.map(h => `
                 <div class="item-row header-row ${h.done ? 'done' : ''}" onclick="toggleDone('headers', ${h.id})">
-                    <input type="checkbox" class="checkbox-left" ${h.done ? 'checked' : ''}>
-                    <div class="text-center-box"><span>${h.name}</span></div>
-                    <div class="time-label">${h.time}</div>
+                    <div class="check-zone"><input type="checkbox" class="checkbox-custom" ${h.done ? 'checked' : ''}></div>
+                    <div class="text-zone"><span>${h.name}</span></div>
+                    <div class="side-zone">${h.time}</div>
                 </div>
             `).join('');
 
-            // --- 按鈕區 ---
+            // --- 按鈕區 (改為粉色調) ---
             document.getElementById('contact-display').innerHTML = db.contacts.map(c => `
                 <a href="tel:${c.tel}" class="call-btn"><div>📞</div><b>${c.name}</b></a>
             `).join('');
 
-            // --- 清單區渲染 ---
+            // --- 清單區 (1/8 比例) ---
             let sortedTasks = [...db.tasks].sort((a,b) => a.done - b.done);
             document.getElementById('list-view').innerHTML = sortedTasks.map(t => `
-                <div class="item-row ${t.done ? 'done' : ''}">
-                    <input type="checkbox" class="checkbox-left" ${t.done ? 'checked' : ''} onchange="toggleDone('tasks', ${t.id})">
-                    <div class="text-center-box"><span>${t.name}</span></div>
-                    <div style="width:60px"></div> </div>
+                <div class="item-row ${t.done ? 'done' : ''}" onclick="toggleDone('tasks', ${t.id})">
+                    <div class="check-zone"><input type="checkbox" class="checkbox-custom" ${t.done ? 'checked' : ''}></div>
+                    <div class="text-zone"><span>${t.name}</span></div>
+                    <div class="side-zone"></div>
+                </div>
             `).join('');
             save();
         }
 
         function renderAdmin() {
+            // --- 管理頁面 ---
             const createEditor = (list, type) => list.map(item => `
                 <div class="edit-row">
                     <input type="text" value="${item.name}" onchange="updateItem('${type}', ${item.id}, 'name', this.value)">
                     ${item.time ? `<input type="time" value="${item.time}" onchange="updateItem('${type}', ${item.id}, 'time', this.value)" style="flex:0.6">` : ''}
-                    ${item.tel ? `<input type="tel" value="${item.tel}" onchange="updateItem('${type}', ${item.id}, 'tel', this.value)">` : ''}
                     <button class="btn-del" onclick="confirmRemove('${type}', ${item.id}, '${item.name}')">刪除</button>
                 </div>
             `).join('');
-
             document.getElementById('edit-header-list').innerHTML = createEditor(db.headers, 'headers');
             document.getElementById('edit-contact-list').innerHTML = createEditor(db.contacts, 'contacts');
             document.getElementById('edit-task-list').innerHTML = createEditor(db.tasks, 'tasks');
         }
 
-        // --- 資料操作與安全確認 ---
+        // --- 資料操作與功能 ---
         function confirmRemove(type, id, name) {
-            if(confirm(`確定要刪除「${name}」嗎？此操作不可撤銷。`)) {
-                db[type] = db[type].filter(i => i.id !== id);
-                renderAdmin();
+            if(confirm(`確定要刪除「${name}」嗎？此操作不可撤銷。`)) { 
+                db[type] = db[type].filter(i => i.id !== id); renderAdmin(); 
             }
         }
-
-        function updateItem(type, id, key, val) {
-            db[type].find(i => i.id === id)[key] = val;
-            save();
-        }
-
+        function updateItem(type, id, key, val) { db[type].find(i => i.id === id)[key] = val; save(); }
         function addItem(type) {
-            let n = document.getElementById(`new-${type[0]}-name`).value;
-            if(!n) return alert("請輸入名稱");
+            let n = document.getElementById(`new-${type[0]}-name`).value; if(!n) return alert("請輸入名稱喔");
             if(type === 'headers') {
-                let t = document.getElementById('new-h-time').value;
-                if(!t) return alert("請輸入時間");
+                let t = document.getElementById('new-h-time').value; if(!t) return alert("請輸入時間喔");
                 db.headers.push({ id: Date.now(), name: n, time: t, done: false });
-                document.getElementById('new-h-time').value = "";
             } else if(type === 'contacts') {
-                let tel = document.getElementById('new-c-tel').value;
+                let tel = document.getElementById('new-c-tel').value; if(!tel) return alert("請輸入電話喔");
                 db.contacts.push({ id: Date.now(), name: n, tel: tel });
                 document.getElementById('new-c-tel').value = "";
-            } else {
-                db.tasks.push({ id: Date.now(), name: n, done: false });
-            }
-            document.getElementById(`new-${type[0]}-name`).value = "";
-            renderAdmin();
+            } else { db.tasks.push({ id: Date.now(), name: n, done: false }); }
+            document.getElementById(`new-${type[0]}-name`).value = ""; renderAdmin();
         }
-
         function toggleDone(type, id) {
             const item = db[type].find(i => i.id === id);
-            item.done = !item.done;
-            renderExec();
+            item.done = !item.done; renderExec();
         }
-
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v4_db', JSON.stringify(db)); }
-
+        function save() { localStorage.setItem('wedding_v6_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
