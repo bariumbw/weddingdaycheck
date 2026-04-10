@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統 V8</title>
+    <title>婚禮指揮部系統 V9 (內建專業建議)</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
@@ -35,7 +35,7 @@
         .item-row.done .text-zone span { text-decoration: line-through; opacity: 0.5; }
 
         /* 管理頁面樣式 */
-        #adminPage { padding-bottom: 160px; } /* 增加底部間距避免被固定按鈕擋住 */
+        #adminPage { padding-bottom: 160px; }
         .admin-section { background: white; margin: 15px; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }
         .edit-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
         input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
@@ -43,18 +43,7 @@
         .btn-del { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
 
         /* 固定保存按鈕區域 */
-        .sticky-save-bar { 
-            position: fixed; 
-            bottom: 70px; /* 在導覽列上方 */
-            left: 0; 
-            width: 100%; 
-            padding: 15px; 
-            background: rgba(255, 255, 255, 0.8); 
-            backdrop-filter: blur(10px); 
-            box-sizing: border-box; 
-            border-top: 1px solid #eee; 
-            z-index: 90;
-        }
+        .sticky-save-bar { position: fixed; bottom: 70px; left: 0; width: 100%; padding: 15px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); box-sizing: border-box; border-top: 1px solid #eee; z-index: 90; }
         .btn-save { background: #10b981; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; width: 100%; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
 
         /* 導覽列 */
@@ -74,7 +63,7 @@
         <div class="section-title">物資與備忘清單</div>
         <div id="list-view" class="list-container"></div>
         <div style="background: #fffbeb; border-left: 4px solid #fbbf24; margin: 20px 15px; padding: 15px; border-radius: 0 12px 12px 0; font-size: 13px; color: #92400e;">
-            <b>💡 專家叮嚀：</b> 記得每小時喝一口水，保持微笑！
+            <b>💡 專家叮嚀：</b> 這是預設建議清單，請在「編輯內容」頁面按實際情況調整喔！
         </div>
     </div>
 
@@ -121,19 +110,46 @@
     </nav>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('wedding_v8_db')) || {
+        // --- 核心更新：植入預設專業數據 ---
+        let defaultDB = {
             headers: [
-                { id: 1, name: "接新娘儀式", time: "08:30", done: false },
-                { id: 2, name: "敬茶給長輩", time: "09:15", done: false },
-                { id: 3, name: "出發往酒店", time: "10:00", done: false }
+                { id: 101, name: "化妝師到達新娘房", time: "06:30", done: false },
+                { id: 102, name: "攝影師到達/拍攝花絮", time: "07:30", done: false },
+                { id: 103, name: "姊妹/兄弟團集合", time: "08:00", done: false },
+                { id: 104, name: "新郎到達及玩接新娘遊戲", time: "08:45", done: false },
+                { id: 105, name: "新人敬茶給女方家長", time: "09:45", done: false },
+                { id: 106, name: "新人出門/起程往男家", time: "10:30", done: false },
+                { id: 107, name: "男家敬茶/入伙儀式", time: "11:30", done: false },
+                { id: 108, name: "到達酒樓/酒店場地", time: "14:00", done: false },
+                { id: 109, name: "綵排儀式 (新人/證婚人)", time: "16:00", done: false },
+                { id: 110, name: "賓客迎賓/麻雀時間", time: "17:30", done: false },
+                { id: 111, name: "證婚儀式開始", time: "18:30", done: false },
+                { id: 112, name: "入席/婚宴正式開始", time: "20:00", done: false }
             ],
             contacts: [
-                { id: 1, name: "找伴郎", tel: "12345678" },
-                { id: 2, name: "化妝師", tel: "87654321" },
-                { id: 3, name: "找司機", tel: "99990000" }
+                { id: 201, name: "伴郎 (總管)", tel: "請輸入電話" },
+                { id: 202, name: "伴娘 (貼身)", tel: "請輸入電話" },
+                { id: 203, name: "花車司機", tel: "請輸入電話" },
+                { id: 204, name: "化妝師", tel: "請輸入電話" },
+                { id: 205, name: "攝影師/錄像師", tel: "請輸入電話" },
+                { id: 206, name: "婚禮統籌/酒樓經理", tel: "請輸入電話" }
             ],
-            tasks: [{ id: 1, name: "戒指已交給伴郎", done: false }]
+            tasks: [
+                { id: 301, name: "新人身份證 (證婚用)", done: false },
+                { id: 302, name: "結婚戒指 (兩枚)", done: false },
+                { id: 303, name: "紅封包 (各類利是)", done: false },
+                { id: 304, name: "敬茶茶具/紅棗/蓮子", done: false },
+                { id: 305, name: "金器/首飾 (點算清單)", done: false },
+                { id: 306, name: "婚紗/晚裝/西裝 (全套)", done: false },
+                { id: 307, name: "平底拖鞋/波鞋 (替換用)", done: false },
+                { id: 308, name: "針線包/安全針", done: false },
+                { id: 309, name: "龍鳳燭/上頭用品 (若適用)", done: false },
+                { id: 310, name: "賓客名單/座位表印本", done: false },
+                { id: 311, name: "USB (早拍晚播/背景音樂)", done: false }
+            ]
         };
+
+        let db = JSON.parse(localStorage.getItem('wedding_v9_db')) || defaultDB;
 
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -141,7 +157,7 @@
             document.getElementById(id).classList.add('active');
             document.getElementById(id === 'execPage' ? 'nav-home' : 'nav-add').classList.add('active');
             if(id === 'execPage') renderExec(); else renderAdmin();
-            window.scrollTo(0, 0); // 切換頁面回到頂部
+            window.scrollTo(0, 0);
         }
 
         function renderExec() {
@@ -179,7 +195,7 @@
                 <div class="edit-row">
                     <input type="text" value="${item.name}" onchange="updateItem('headers', ${item.id}, 'name', this.value)">
                     <input type="time" value="${item.time}" onchange="updateItem('headers', ${item.id}, 'time', this.value)" style="flex:0.6">
-                    <button class="btn-del" onclick="confirmRemove('headers', ${item.id}, '${item.name}')">刪除</button>
+                    <button class="btn-del" onclick="confirmRemove('headers', ${item.id}, '${item.name}')">刪</button>
                 </div>
             `).join('');
 
@@ -187,14 +203,14 @@
                 <div class="edit-row">
                     <input type="text" value="${item.name}" onchange="updateItem('contacts', ${item.id}, 'name', this.value)">
                     <input type="tel" value="${item.tel}" onchange="updateItem('contacts', ${item.id}, 'tel', this.value)">
-                    <button class="btn-del" onclick="confirmRemove('contacts', ${item.id}, '${item.name}')">刪除</button>
+                    <button class="btn-del" onclick="confirmRemove('contacts', ${item.id}, '${item.name}')">刪</button>
                 </div>
             `).join('');
 
             document.getElementById('edit-task-list').innerHTML = db.tasks.map(item => `
                 <div class="edit-row">
                     <input type="text" value="${item.name}" onchange="updateItem('tasks', ${item.id}, 'name', this.value)">
-                    <button class="btn-del" onclick="confirmRemove('tasks', ${item.id}, '${item.name}')">刪除</button>
+                    <button class="btn-del" onclick="confirmRemove('tasks', ${item.id}, '${item.name}')">刪</button>
                 </div>
             `).join('');
         }
@@ -211,7 +227,6 @@
             } else if(type === 'contacts') {
                 let tel = document.getElementById('new-c-tel').value;
                 db.contacts.push({ id: Date.now(), name: n, tel: tel });
-                document.getElementById('new-c-tel').value = "";
             } else { db.tasks.push({ id: Date.now(), name: n, done: false }); }
             document.getElementById(`new-${type[0]}-name`).value = ""; renderAdmin();
         }
@@ -220,7 +235,7 @@
             item.done = !item.done; renderExec();
         }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v8_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v9_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
