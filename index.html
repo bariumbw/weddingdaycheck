@@ -3,63 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部</title>
+    <title>婚禮指揮部系統</title>
     <style>
-        /* 基礎樣式 - 確保即使沒網路也能顯示 */
-        body { font-family: -apple-system, sans-serif; background: #f0f2f5; margin: 0; padding: 0; color: #333; }
-        .page { display: none; padding-bottom: 80px; }
+        body { font-family: -apple-system, sans-serif; background: #f4f7f9; margin: 0; padding: 0; color: #333; }
+        .page { display: none; padding-bottom: 100px; }
         .active { display: block; }
         
         /* 1. 頂部區 */
-        .header { background: #4f46e5; color: white; padding: 20px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header { background: #4f46e5; color: white; padding: 20px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         
         /* 2. 按鈕區 */
         .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
-        .call-btn { background: white; border-radius: 12px; padding: 15px 5px; text-align: center; text-decoration: none; color: #333; font-size: 12px; border: 1px solid #eee; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .call-btn { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; text-decoration: none; color: #333; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
         .call-btn div { font-size: 24px; margin-bottom: 5px; }
+        .call-btn b { display: block; font-size: 13px; color: #4f46e5; }
 
         /* 3. 清單區 */
-        .section-title { padding: 10px 15px; font-weight: bold; color: #666; font-size: 14px; }
-        .list-container { background: white; margin: 0 15px; border-radius: 12px; overflow: hidden; border: 1px solid #eee; }
-        .list-item { display: flex; align-items: center; padding: 15px; border-bottom: 1px solid #f5f5f5; transition: 0.3s; }
-        .list-item:last-child { border-bottom: none; }
-        .list-item.done { background: #fafafa; opacity: 0.6; }
+        .section-title { padding: 10px 15px; font-weight: bold; color: #64748b; font-size: 14px; display: flex; justify-content: space-between; }
+        .list-container { background: white; margin: 0 15px; border-radius: 15px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .list-item { display: flex; align-items: center; padding: 16px; border-bottom: 1px solid #f1f5f9; }
+        .list-item.done { background: #f8fafc; opacity: 0.6; }
         .list-item.done span { text-decoration: line-through; }
-        .list-item input { width: 22px; height: 22px; margin-right: 12px; }
+        .list-item input { width: 22px; height: 22px; margin-right: 12px; border-radius: 6px; }
 
-        /* 4. 底部區 (專家叮嚀) */
-        .tip-box { background: #fffbeb; border-left: 4px solid #f59e0b; margin: 20px 15px; padding: 15px; border-radius: 0 8px 8px 0; }
-        .tip-title { color: #92400e; font-weight: bold; font-size: 14px; margin-bottom: 4px; }
-        .tip-text { color: #b45309; font-size: 13px; }
+        /* 4. 底部區 */
+        .tip-box { background: #fffbeb; border-left: 4px solid #fbbf24; margin: 20px 15px; padding: 15px; border-radius: 0 12px 12px 0; }
+        .tip-title { color: #92400e; font-weight: bold; font-size: 14px; }
+        .tip-text { color: #b45309; font-size: 13px; margin-top: 4px; }
 
-        /* 增加內容頁面樣式 */
-        .admin-box { background: white; margin: 15px; padding: 20px; border-radius: 12px; border: 1px solid #eee; }
-        input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; }
-        .submit-btn { width: 100%; padding: 15px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+        /* 管理頁面樣式 */
+        .admin-section { background: white; margin: 15px; padding: 15px; border-radius: 15px; border: 1px solid #e2e8f0; }
+        .admin-section h3 { margin-top: 0; font-size: 15px; border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 12px; color: #1e293b; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+        input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        .submit-btn { width: 100%; padding: 14px; background: #4f46e5; color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; margin-top: 10px; }
+        .delete-btn { color: #ef4444; font-size: 12px; margin-left: 10px; cursor: pointer; }
 
-        /* 底部導覽 */
-        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; height: 65px; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #999; border: none; background: none; cursor: pointer; }
+        /* 導覽列 */
+        .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #e2e8f0; display: flex; height: 70px; z-index: 100; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #94a3b8; border: none; background: none; }
         .nav-item.active { color: #4f46e5; font-weight: bold; }
-        .nav-icon { font-size: 22px; margin-bottom: 2px; }
+        .nav-icon { font-size: 24px; }
     </style>
 </head>
 <body>
 
     <div id="execPage" class="page active">
-        <div class="header" id="header-timer">
-            當日核心行程：09:00 AM 儀式開始
-        </div>
+        <div class="header" id="header-display">載入中...</div>
 
-        <div class="btn-grid">
-            <a href="tel:12345678" class="call-btn"><div>📞</div>找伴郎</a>
-            <a href="tel:87654321" class="call-btn"><div>💄</div>化妝師</a>
-            <a href="tel:99990000" class="call-btn"><div>🚗</div>找司機</a>
-        </div>
-
-        <div class="section-title">清單區</div>
-        <div id="list-view" class="list-container">
+        <div class="btn-grid" id="contact-display">
             </div>
+
+        <div class="section-title"><span>📋 清單區</span><span id="progress"></span></div>
+        <div id="list-view" class="list-container"></div>
 
         <div class="tip-box">
             <div class="tip-title">💡 專家叮嚀：</div>
@@ -68,12 +65,38 @@
     </div>
 
     <div id="adminPage" class="page">
-        <div class="header">增加清單內容</div>
-        <div class="admin-box">
-            <label style="display:block; margin-bottom:8px; font-size:14px;">任務描述</label>
-            <input type="text" id="task-input" placeholder="例如：準備敬茶茶具">
+        <div class="header">⚙️ 系統設定與編輯</div>
+        
+        <div class="admin-section">
+            <h3>[頂部] 核心行程設定</h3>
+            <div class="input-group">
+                <label>行程名稱</label>
+                <input type="text" id="set-event-name" placeholder="例如：儀式開始">
+            </div>
+            <div class="input-group">
+                <label>開始時間 (HH:mm)</label>
+                <input type="time" id="set-event-time">
+            </div>
+        </div>
+
+        <div class="admin-section">
+            <h3>[按鈕區] 聯絡人設定</h3>
+            <div id="contact-editor">
+                </div>
+        </div>
+
+        <div class="admin-section">
+            <h3>[清單區] 增加新任務</h3>
+            <input type="text" id="new-task-input" placeholder="例如：準備敬茶茶具">
             <button class="submit-btn" onclick="addTask()">加入清單</button>
         </div>
+
+        <div class="admin-section">
+            <h3>清單管理 (點擊可刪除)</h3>
+            <div id="manage-list" style="font-size: 13px; color: #64748b;"></div>
+        </div>
+
+        <button class="submit-btn" style="background:#10b981; margin: 15px; width: calc(100% - 30px);" onclick="saveAllSettings()">保存所有設定並返回</button>
     </div>
 
     <div class="nav-bar">
@@ -81,80 +104,137 @@
             <div class="nav-icon">🏛️</div>指揮部
         </button>
         <button class="nav-item" id="nav-add" onclick="goPage('adminPage')">
-            <div class="nav-icon">📝</div>增加內容
+            <div class="nav-icon">📝</div>增加/設定
         </button>
     </div>
 
     <script>
-        // 數據管理
-        let myTasks = JSON.parse(localStorage.getItem('wedding_v3')) || [
-            { id: 1, txt: "戒指已交給伴郎", done: false },
-            { id: 2, txt: "準備敬茶茶具", done: false }
-        ];
+        // 初始數據結構
+        let config = JSON.parse(localStorage.getItem('wedding_config')) || {
+            eventName: "儀式開始",
+            eventTime: "09:00",
+            contacts: [
+                { icon: "📞", name: "找伴郎", tel: "12345678" },
+                { icon: "💄", name: "化妝師", tel: "87654321" },
+                { icon: "🚗", name: "找司機", tel: "99990000" }
+            ],
+            tasks: [
+                { id: 1, txt: "戒指已交給伴郎", done: false },
+                { id: 2, txt: "準備敬茶茶具", done: false }
+            ]
+        };
 
-        // 頁面切換
         function goPage(id) {
-            document.getElementById('execPage').classList.remove('active');
-            document.getElementById('adminPage').classList.remove('active');
-            document.getElementById('nav-home').classList.remove('active');
-            document.getElementById('nav-add').classList.remove('active');
-            
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            if(id === 'execPage') document.getElementById('nav-home').classList.add('active');
-            else document.getElementById('nav-add').classList.add('active');
+            document.getElementById(id === 'execPage' ? 'nav-home' : 'nav-add').classList.add('active');
+            if(id === 'adminPage') initAdmin();
+            if(id === 'execPage') renderExec();
         }
 
-        // 倒數計時
-        function timer() {
-            let target = new Date();
-            target.setHours(9, 0, 0);
-            let diff = target - new Date();
-            let msg = "[頂部] 當日核心行程：09:00 AM 儀式開始";
-            if (diff > 0) {
-                let m = Math.floor(diff / 60000);
-                msg += " (剩 " + m + " 分鐘)";
-            } else {
-                msg = "✨ 儀式進行中 | 祝新婚快樂";
-            }
-            document.getElementById('header-timer').innerText = msg;
-        }
-
-        // 顯示清單
-        function showList() {
-            let container = document.getElementById('list-view');
-            // 排序：未完成在前
-            myTasks.sort((a, b) => a.done - b.done);
+        // 渲染指揮部首頁
+        function renderExec() {
+            // 1. 頂部倒數計時將由 setInterval 處理
             
-            let html = "";
-            myTasks.forEach(t => {
-                html += '<div class="list-item ' + (t.done ? 'done' : '') + '">' +
-                        '<input type="checkbox" ' + (t.done ? 'checked' : '') + ' onchange="status(' + t.id + ')">' +
-                        '<span>' + (t.done ? '✅ ' : '☐ ') + t.txt + '</span>' +
-                        '</div>';
+            // 2. 按鈕區
+            let btnHtml = "";
+            config.contacts.forEach(c => {
+                btnHtml += `<a href="tel:${c.tel}" class="call-btn"><div>${c.icon}</div><b>${c.name}</b></a>`;
             });
-            container.innerHTML = html;
-            localStorage.setItem('wedding_v3', JSON.stringify(myTasks));
+            document.getElementById('contact-display').innerHTML = btnHtml;
+
+            // 3. 清單區
+            config.tasks.sort((a, b) => a.done - b.done);
+            let listHtml = "";
+            config.tasks.forEach(t => {
+                listHtml += `<div class="list-item ${t.done ? 'done' : ''}">
+                    <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask(${t.id})">
+                    <span>${t.done ? '✅ ' : '☐ '}${t.txt}</span>
+                </div>`;
+            });
+            document.getElementById('list-view').innerHTML = listHtml;
+            document.getElementById('progress').innerText = `${config.tasks.filter(t => t.done).length}/${config.tasks.length}`;
+            save();
         }
 
-        function status(id) {
-            let t = myTasks.find(x => x.id === id);
-            t.done = !t.done;
-            showList();
+        // 初始化管理頁面
+        function initAdmin() {
+            document.getElementById('set-event-name').value = config.eventName;
+            document.getElementById('set-event-time').value = config.eventTime;
+
+            let contactHtml = "";
+            config.contacts.forEach((c, index) => {
+                contactHtml += `<div style="margin-bottom:10px; padding:10px; background:#f8fafc; border-radius:10px;">
+                    <label>聯絡人 ${index+1} 名字與電話</label>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="c-name-${index}" value="${c.name}" style="flex:1">
+                        <input type="text" id="c-tel-${index}" value="${c.tel}" style="flex:1">
+                    </div>
+                </div>`;
+            });
+            document.getElementById('contact-editor').innerHTML = contactHtml;
+
+            let manageHtml = "";
+            config.tasks.forEach(t => {
+                manageHtml += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #eee;">
+                    <span>${t.txt}</span><span class="delete-btn" onclick="delTask(${t.id})">刪除</span>
+                </div>`;
+            });
+            document.getElementById('manage-list').innerHTML = manageHtml;
         }
 
-        function addTask() {
-            let val = document.getElementById('task-input').value;
-            if(!val) return alert("請輸入內容");
-            myTasks.push({ id: Date.now(), txt: val, done: false });
-            document.getElementById('task-input').value = "";
-            showList();
+        function saveAllSettings() {
+            config.eventName = document.getElementById('set-event-name').value;
+            config.eventTime = document.getElementById('set-event-time').value;
+            config.contacts.forEach((c, index) => {
+                c.name = document.getElementById(`c-name-${index}`).value;
+                c.tel = document.getElementById(`c-tel-${index}`).value;
+            });
+            save();
             goPage('execPage');
         }
 
-        // 啟動
-        setInterval(timer, 1000);
-        timer();
-        showList();
+        function addTask() {
+            let val = document.getElementById('new-task-input').value;
+            if(!val) return;
+            config.tasks.push({ id: Date.now(), txt: val, done: false });
+            document.getElementById('new-task-input').value = "";
+            initAdmin();
+        }
+
+        function delTask(id) {
+            config.tasks = config.tasks.filter(t => t.id !== id);
+            initAdmin();
+        }
+
+        function toggleTask(id) {
+            let t = config.tasks.find(x => x.id === id);
+            t.done = !t.done;
+            renderExec();
+        }
+
+        function save() {
+            localStorage.setItem('wedding_config', JSON.stringify(config));
+        }
+
+        function updateTimer() {
+            let [h, m] = config.eventTime.split(':');
+            let target = new Date();
+            target.setHours(h, m, 0);
+            let diff = target - new Date();
+            let msg = `[頂部] 當日核心行程：${config.eventTime} ${config.eventName}`;
+            if (diff > 0) {
+                let mins = Math.floor(diff / 60000);
+                msg += ` (剩 ${mins} 分鐘)`;
+            } else {
+                msg = `✨ ${config.eventName} 進行中 | 祝順利`;
+            }
+            document.getElementById('header-display').innerText = msg;
+        }
+
+        setInterval(updateTimer, 1000);
+        renderExec();
     </script>
 </body>
 </html>
