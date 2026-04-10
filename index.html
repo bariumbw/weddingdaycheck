@@ -3,69 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統 V6 (粉色版)</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>婚禮指揮部系統 V7</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
         .active { display: block; }
         
-        /* 1. 頂部區 (改為粉色背景) */
-        .header-box { background: #fdf2f5; color: #333; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(251, 191, 36, 0.05); }
-        .section-label { font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+        /* 1. 頂部區 (粉色背景) */
+        .header-box { background: #fdf2f5; color: #333; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .section-label { font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
         
         /* 2. 通用列表比例佈局 (1/8 比例) */
-        .item-row { 
-            display: flex; 
-            align-items: center; 
-            padding: 16px 0; 
-            border-bottom: 1px solid #f1f5f9; 
-            background: white; 
-            width: 100%;
-        }
-        
-        /* 勾選區佔 1/8 */
-        .check-zone { 
-            width: 12.5%; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            flex-shrink: 0;
-        }
-        
-        /* 文字區佔 6/8 (75%) */
-        .text-zone { 
-            width: 75%; 
-            text-align: center; 
-            font-size: 15px; 
-            font-weight: 500;
-            padding: 0 5px;
-            box-sizing: border-box;
-            word-break: break-all;
-        }
-        
-        /* 右側區佔 1/8 (時間或對齊用) */
-        .side-zone { 
-            width: 12.5%; 
-            font-size: 12px; 
-            font-weight: bold; 
-            text-align: center;
-            flex-shrink: 0;
-            color: #64748b;
-        }
+        .item-row { display: flex; align-items: center; padding: 16px 0; border-bottom: 1px solid #f1f5f9; background: white; width: 100%; }
+        .check-zone { width: 12.5%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        .text-zone { width: 75%; text-align: center; font-size: 15px; font-weight: 500; padding: 0 5px; box-sizing: border-box; word-break: break-all; }
+        .side-zone { width: 12.5%; font-size: 12px; font-weight: bold; text-align: center; flex-shrink: 0; color: #64748b; }
 
-        /* 頂部行程特殊樣式 (深灰色文字) */
-        .header-row { 
-            background: rgba(255,255,255,0.6); 
-            border-bottom: 1px solid rgba(0,0,0,0.05); 
-            border-radius: 8px; 
-            margin-bottom: 6px; 
-            color: #333; 
-        }
+        .header-row { background: rgba(255,255,255,0.6); border-bottom: 1px solid rgba(0,0,0,0.05); border-radius: 8px; margin-bottom: 6px; color: #333; }
         .header-row.done { opacity: 0.4; background: rgba(0,0,0,0.05); }
-        .header-row .checkbox-custom { border-color: #ddd; }
-        
-        .checkbox-custom { width: 20px; height: 20px; cursor: pointer; border-radius: 6px; border: 2px solid #ddd; accent-color: #f472b6; }
+        .checkbox-custom { width: 20px; height: 20px; cursor: pointer; accent-color: #f472b6; }
 
         /* 3. 按鈕區 */
         .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
@@ -78,7 +34,7 @@
         .list-container { background: white; margin: 0 15px; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
         .item-row.done .text-zone span { text-decoration: line-through; opacity: 0.5; }
 
-        /* 管理頁面樣式 (按鈕改粉色) */
+        /* 管理頁面樣式 */
         .admin-section { background: white; margin: 15px; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }
         .edit-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
         input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
@@ -89,7 +45,6 @@
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #e2e8f0; display: flex; height: 70px; z-index: 100; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #94a3b8; border: none; background: none; cursor: pointer; }
         .nav-item.active { color: #f472b6; font-weight: bold; }
-        .nav-icon { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -99,19 +54,17 @@
             <div class="section-label">📍 今日核心行程預覽 (5)</div>
             <div id="header-display"></div>
         </div>
-
         <div class="btn-grid" id="contact-display"></div>
-
         <div class="section-title">物資與備忘清單</div>
         <div id="list-view" class="list-container"></div>
-
         <div style="background: #fffbeb; border-left: 4px solid #fbbf24; margin: 20px 15px; padding: 15px; border-radius: 0 12px 12px 0; font-size: 13px; color: #92400e;">
             <b>💡 專家叮嚀：</b> 記得每小時喝一口水，保持微笑！
         </div>
     </div>
 
     <div id="adminPage" class="page">
-        <div style="padding: 20px; font-weight: bold; font-size: 20px;">⚙️ 指揮部系統設定</div>
+        <div style="padding: 20px; font-weight: bold; font-size: 20px;">⚙️ 系統內容編輯</div>
+        
         <div class="admin-section">
             <h3>行程管理</h3>
             <div id="edit-header-list"></div>
@@ -119,57 +72,49 @@
                 <input type="text" id="new-h-name" placeholder="行程名稱">
                 <input type="time" id="new-h-time" style="flex:0.6">
             </div>
-            <button class="btn-add" onclick="addItem('headers')">+ 新增核心行程</button>
+            <button class="btn-add" onclick="addItem('headers')">+ 新增行程</button>
         </div>
+
         <div class="admin-section">
-            <h3>聯絡人管理</h3>
+            <h3>聯絡人管理 (可修改名稱與電話)</h3>
             <div id="edit-contact-list"></div>
             <div class="edit-row">
                 <input type="text" id="new-c-name" placeholder="對象">
-                <input type="tel" id="new-c-tel" placeholder="電話">
+                <input type="tel" id="new-c-tel" placeholder="電話號碼">
             </div>
             <button class="btn-add" onclick="addItem('contacts')">+ 新增聯絡人</button>
         </div>
+
         <div class="admin-section">
             <h3>物資清單管理</h3>
             <div id="edit-task-list"></div>
             <div class="edit-row">
                 <input type="text" id="new-t-name" placeholder="物資名稱">
             </div>
-            <button class="btn-add" onclick="addItem('tasks')">+ 新增清單項目</button>
+            <button class="btn-add" onclick="addItem('tasks')">+ 新增項目</button>
         </div>
-        <div style="padding: 0 15px 40px;"><button class="btn-add" style="background:#10b981; padding: 18px;" onclick="saveAndGo()">✅ 保存設定並返回指揮部</button></div>
+        
+        <div style="padding: 0 15px 40px;"><button class="btn-add" style="background:#10b981; padding: 18px;" onclick="saveAndGo()">✅ 保存更改並返回</button></div>
     </div>
 
     <nav class="nav-bar">
-        <button class="nav-item active" id="nav-home" onclick="showPage('execPage')">
-            <div class="nav-icon">🏛️</div>指揮部
-        </button>
-        <button class="nav-item" id="nav-add" onclick="showPage('adminPage')">
-            <div class="nav-icon">➕</div>編輯內容
-        </button>
+        <button class="nav-item active" id="nav-home" onclick="showPage('execPage')">🏛️<br>指揮部</button>
+        <button class="nav-item" id="nav-add" onclick="showPage('adminPage')">➕<br>編輯內容</button>
     </nav>
 
     <script>
-        // 初始化數據結構 (粉色版)
-        let db = JSON.parse(localStorage.getItem('wedding_v6_db')) || {
+        let db = JSON.parse(localStorage.getItem('wedding_v7_db')) || {
             headers: [
-                { id: 1, name: "接新娘儀式 (需準備利是)", time: "08:30", done: false },
-                { id: 2, name: "敬茶給長輩 (需茶具茶葉)", time: "09:15", done: false },
-                { id: 3, name: "出發往酒店 (需清點物資)", time: "10:00", done: false },
-                { id: 4, name: "酒店外景拍攝 (需替換平底鞋)", time: "11:00", done: false },
-                { id: 5, name: "午休用餐 (新人記得休息)", time: "12:30", done: false }
+                { id: 1, name: "接新娘儀式", time: "08:30", done: false },
+                { id: 2, name: "敬茶給長輩", time: "09:15", done: false },
+                { id: 3, name: "出發往酒店", time: "10:00", done: false }
             ],
             contacts: [
                 { id: 1, name: "找伴郎", tel: "12345678" },
                 { id: 2, name: "化妝師", tel: "87654321" },
                 { id: 3, name: "找司機", tel: "99990000" }
             ],
-            tasks: [
-                { id: 1, name: "戒指已交給伴郎", done: false },
-                { id: 2, name: "準備敬茶茶具", done: false },
-                { id: 3, name: "新娘替換平底鞋", done: false }
-            ]
+            tasks: [{ id: 1, name: "戒指已交給伴郎", done: false }]
         };
 
         function showPage(id) {
@@ -181,7 +126,6 @@
         }
 
         function renderExec() {
-            // --- 頂部行程邏輯 (粉色版樣式) ---
             let allHeaders = [...db.headers].sort((a,b) => a.time.localeCompare(b.time));
             let doneHeaders = allHeaders.filter(h => h.done);
             let todoHeaders = allHeaders.filter(h => !h.done);
@@ -196,12 +140,10 @@
                 </div>
             `).join('');
 
-            // --- 按鈕區 (改為粉色調) ---
             document.getElementById('contact-display').innerHTML = db.contacts.map(c => `
                 <a href="tel:${c.tel}" class="call-btn"><div>📞</div><b>${c.name}</b></a>
             `).join('');
 
-            // --- 清單區 (1/8 比例) ---
             let sortedTasks = [...db.tasks].sort((a,b) => a.done - b.done);
             document.getElementById('list-view').innerHTML = sortedTasks.map(t => `
                 <div class="item-row ${t.done ? 'done' : ''}" onclick="toggleDone('tasks', ${t.id})">
@@ -214,44 +156,52 @@
         }
 
         function renderAdmin() {
-            // --- 管理頁面 ---
-            const createEditor = (list, type) => list.map(item => `
+            // 行程管理編輯
+            document.getElementById('edit-header-list').innerHTML = db.headers.map(item => `
                 <div class="edit-row">
-                    <input type="text" value="${item.name}" onchange="updateItem('${type}', ${item.id}, 'name', this.value)">
-                    ${item.time ? `<input type="time" value="${item.time}" onchange="updateItem('${type}', ${item.id}, 'time', this.value)" style="flex:0.6">` : ''}
-                    <button class="btn-del" onclick="confirmRemove('${type}', ${item.id}, '${item.name}')">刪除</button>
+                    <input type="text" value="${item.name}" onchange="updateItem('headers', ${item.id}, 'name', this.value)">
+                    <input type="time" value="${item.time}" onchange="updateItem('headers', ${item.id}, 'time', this.value)" style="flex:0.6">
+                    <button class="btn-del" onclick="confirmRemove('headers', ${item.id}, '${item.name}')">刪</button>
                 </div>
             `).join('');
-            document.getElementById('edit-header-list').innerHTML = createEditor(db.headers, 'headers');
-            document.getElementById('edit-contact-list').innerHTML = createEditor(db.contacts, 'contacts');
-            document.getElementById('edit-task-list').innerHTML = createEditor(db.tasks, 'tasks');
+
+            // 聯絡人管理編輯 (關鍵：顯示電話號碼輸入框)
+            document.getElementById('edit-contact-list').innerHTML = db.contacts.map(item => `
+                <div class="edit-row">
+                    <input type="text" value="${item.name}" onchange="updateItem('contacts', ${item.id}, 'name', this.value)" placeholder="名字">
+                    <input type="tel" value="${item.tel}" onchange="updateItem('contacts', ${item.id}, 'tel', this.value)" placeholder="電話">
+                    <button class="btn-del" onclick="confirmRemove('contacts', ${item.id}, '${item.name}')">刪</button>
+                </div>
+            `).join('');
+
+            // 物資清單管理編輯
+            document.getElementById('edit-task-list').innerHTML = db.tasks.map(item => `
+                <div class="edit-row">
+                    <input type="text" value="${item.name}" onchange="updateItem('tasks', ${item.id}, 'name', this.value)">
+                    <button class="btn-del" onclick="confirmRemove('tasks', ${item.id}, '${item.name}')">刪</button>
+                </div>
+            `).join('');
         }
 
-        // --- 資料操作與功能 ---
         function confirmRemove(type, id, name) {
-            if(confirm(`確定要刪除「${name}」嗎？此操作不可撤銷。`)) { 
-                db[type] = db[type].filter(i => i.id !== id); renderAdmin(); 
-            }
+            if(confirm(`確定要刪除「${name}」嗎？`)) { db[type] = db[type].filter(i => i.id !== id); renderAdmin(); }
         }
         function updateItem(type, id, key, val) { db[type].find(i => i.id === id)[key] = val; save(); }
         function addItem(type) {
-            let n = document.getElementById(`new-${type[0]}-name`).value; if(!n) return alert("請輸入名稱喔");
+            let n = document.getElementById(`new-${type[0]}-name`).value; if(!n) return;
             if(type === 'headers') {
-                let t = document.getElementById('new-h-time').value; if(!t) return alert("請輸入時間喔");
+                let t = document.getElementById('new-h-time').value; if(!t) return;
                 db.headers.push({ id: Date.now(), name: n, time: t, done: false });
             } else if(type === 'contacts') {
-                let tel = document.getElementById('new-c-tel').value; if(!tel) return alert("請輸入電話喔");
+                let tel = document.getElementById('new-c-tel').value;
                 db.contacts.push({ id: Date.now(), name: n, tel: tel });
                 document.getElementById('new-c-tel').value = "";
             } else { db.tasks.push({ id: Date.now(), name: n, done: false }); }
             document.getElementById(`new-${type[0]}-name`).value = ""; renderAdmin();
         }
-        function toggleDone(type, id) {
-            const item = db[type].find(i => i.id === id);
-            item.done = !item.done; renderExec();
-        }
+        function toggleDone(type, id) { db[type].find(x => x.id === id).done = !db[type].find(x => x.id === id).done; renderExec(); }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v6_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v7_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
