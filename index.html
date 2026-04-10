@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統</title>
+    <title>婚禮指揮部系統 V15</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
         .active { display: block; }
         
-        /* 1. 頂部區 (限制佔 1/3 螢幕高度) */
+        /* 1. 頂部區 */
         .header-box { 
             background: #fdf2f5; 
             color: #333; 
@@ -18,23 +18,21 @@
             top: 0; 
             z-index: 100; 
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            max-height: 33vh; 
+            max-height: 32vh; 
             box-sizing: border-box;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
         .section-label { font-size: 11px; color: #64748b; margin-bottom: 5px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; flex-shrink: 0; }
-        
         #header-display { flex: 1; display: flex; flex-direction: column; }
 
-        /* 2. 通用列表比例佈局 (1/8 比例) */
+        /* 2. 通用列表比例佈局 */
         .item-row { display: flex; align-items: center; padding: 16px 0; border-bottom: 1px solid #f1f5f9; background: white; width: 100%; }
         .check-zone { width: 12.5%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
         .text-zone { width: 75%; text-align: center; font-size: 15px; font-weight: 500; padding: 0 5px; box-sizing: border-box; word-break: break-all; }
         .side-zone { width: 12.5%; font-size: 15px; font-weight: bold; text-align: center; flex-shrink: 0; color: #333; }
 
-        /* 頂部行程專用樣式 */
         .header-row { 
             background: rgba(255,255,255,0.6); 
             border-bottom: 1px solid rgba(0,0,0,0.05); 
@@ -49,12 +47,11 @@
         .header-row.done { opacity: 0.4; background: rgba(0,0,0,0.05); }
         .checkbox-custom { width: 20px; height: 20px; cursor: pointer; accent-color: #f472b6; }
 
-        /* 3. 按鈕區與摺疊按鈕樣式 */
+        /* 3. 按鈕區 */
         .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px 15px 5px 15px; }
         .call-btn { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; text-decoration: none; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .call-btn div { font-size: 20px; margin-bottom: 4px; color: #f472b6; }
         .call-btn b { color: #f472b6; }
-        
         .more-toggle { text-align: center; padding: 5px 15px 15px; color: #f472b6; font-size: 13px; font-weight: bold; cursor: pointer; }
         .header-toggle { padding: 5px 0 0 0; font-size: 12px; color: #f472b6; text-align: center; cursor: pointer; font-weight: bold; flex-shrink: 0; }
 
@@ -64,12 +61,16 @@
         .item-row.done .text-zone span { text-decoration: line-through; opacity: 0.5; }
 
         /* 管理頁面樣式 */
-        #adminPage { padding-bottom: 160px; }
+        #adminPage { padding-bottom: 180px; }
         .admin-section { background: white; margin: 15px; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }
         .edit-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
         input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
         .btn-add { background: #f472b6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin: 10px 0; cursor: pointer; }
         .btn-del { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
+
+        /* 重置按鈕樣式 */
+        .reset-container { margin: 30px 15px 50px; padding: 15px; text-align: center; border: 1px dashed #ef4444; border-radius: 12px; }
+        .btn-reset { background: white; color: #ef4444; border: 1px solid #ef4444; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; }
 
         /* 固定保存按鈕 */
         .sticky-save-bar { position: fixed; bottom: 70px; left: 0; width: 100%; padding: 15px; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); box-sizing: border-box; border-top: 1px solid #eee; z-index: 90; }
@@ -85,7 +86,7 @@
 
     <div id="execPage" class="page active">
         <div class="header-box" id="exec-header">
-            <div class="section-label">📍 今日行程</div>
+            <div class="section-label">📍 今日行程預覽</div>
             <div id="header-display"></div>
             <div id="header-toggle-btn" class="header-toggle" onclick="toggleHeader()">更多 ></div>
         </div>
@@ -98,7 +99,7 @@
         <div class="section-title">物資與備忘清單</div>
         <div id="list-view" class="list-container"></div>
         <div style="background: #fffbeb; border-left: 4px solid #fbbf24; margin: 20px 15px; padding: 15px; border-radius: 0 12px 12px 0; font-size: 13px; color: #92400e; margin-bottom: 20px;">
-            <b>💡 專家叮嚀：</b> 這份完整清單已備妥，請按需求在「編輯」頁面微調！
+            <b>💡 專家叮嚀：</b> 系統會自動記住你的更改。如需清空重新開始，請至編輯頁最下方點選重置。
         </div>
     </div>
 
@@ -132,6 +133,11 @@
                 <input type="text" id="new-t-name" placeholder="物資名稱">
             </div>
             <button class="btn-add" onclick="addItem('tasks')">+ 新增項目</button>
+        </div>
+
+        <div class="reset-container">
+            <p style="font-size: 12px; color: #94a3b8; margin-bottom: 10px;">如果想要刪除所有更改並恢復初始建議：</p>
+            <button class="btn-reset" onclick="hardReset()">⚠️ 全部重置系統</button>
         </div>
         
         <div class="sticky-save-bar">
@@ -185,7 +191,8 @@
             ]
         };
 
-        let db = JSON.parse(localStorage.getItem('wedding_v14_db')) || defaultDB;
+        // 從 LocalStorage 加載，如果沒有則使用預設值
+        let db = JSON.parse(localStorage.getItem('wedding_v15_db')) || JSON.parse(JSON.stringify(defaultDB));
 
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -200,7 +207,6 @@
         function toggleHeader() { isHeaderExpanded = !isHeaderExpanded; renderExec(); }
 
         function renderExec() {
-            // --- 頂部行程渲染邏輯 ---
             let allHeaders = [...db.headers].sort((a,b) => a.time.localeCompare(b.time));
             let displayHeaders = isHeaderExpanded ? allHeaders : allHeaders.slice(0, 4);
 
@@ -216,7 +222,6 @@
             if (allHeaders.length <= 4) { hToggleBtn.style.display = 'none'; } 
             else { hToggleBtn.style.display = 'block'; hToggleBtn.innerText = isHeaderExpanded ? "< 隱藏" : "更多 >"; }
 
-            // 聯絡人渲染
             let displayContacts = isContactExpanded ? db.contacts : db.contacts.slice(0, 3);
             document.getElementById('contact-display').innerHTML = displayContacts.map(c => `
                 <a href="tel:${c.tel}" class="call-btn"><div>📞</div><b>${c.name}</b></a>
@@ -226,7 +231,6 @@
             if (db.contacts.length <= 3) { cToggleBtn.style.display = 'none'; } 
             else { cToggleBtn.style.display = 'block'; cToggleBtn.innerText = isContactExpanded ? "< 隱藏" : "更多 >"; }
 
-            // 物資清單渲染
             let sortedTasks = [...db.tasks].sort((a,b) => a.done - b.done);
             document.getElementById('list-view').innerHTML = sortedTasks.map(t => `
                 <div class="item-row ${t.done ? 'done' : ''}" onclick="toggleDone('tasks', ${t.id})">
@@ -264,7 +268,7 @@
         }
 
         function confirmRemove(type, id, name) {
-            if(confirm(`確定要刪除「${name}」嗎？`)) { db[type] = db[type].filter(i => i.id !== id); renderAdmin(); }
+            if(confirm(`確定要刪除「${name}」嗎？`)) { db[type] = db[type].filter(i => i.id !== id); renderAdmin(); save(); }
         }
         function updateItem(type, id, key, val) { db[type].find(i => i.id === id)[key] = val; save(); }
         function addItem(type) {
@@ -276,14 +280,26 @@
                 let tel = document.getElementById('new-c-tel').value;
                 db.contacts.push({ id: Date.now(), name: n, tel: tel });
             } else { db.tasks.push({ id: Date.now(), name: n, done: false }); }
-            document.getElementById(`new-${type[0]}-name`).value = ""; renderAdmin();
+            document.getElementById(`new-${type[0]}-name`).value = ""; renderAdmin(); save();
         }
         function toggleDone(type, id) {
             const item = db[type].find(x => x.id === id);
-            item.done = !item.done; renderExec();
+            item.done = !item.done; renderExec(); save();
+        }
+        function hardReset() {
+            if(confirm("⚠️ 注意：這將刪除你所有的自訂行程、電話和打勾記錄，並恢復到最初的預設狀態。確定要重置嗎？")) {
+                if(confirm("最後確認：你真的要重置所有數據嗎？")) {
+                    db = JSON.parse(JSON.stringify(defaultDB));
+                    save();
+                    renderAdmin();
+                    alert("系統已重置成功！");
+                }
+            }
         }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v14_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v15_db', JSON.stringify(db)); }
+        
+        // 初始渲染
         renderExec();
     </script>
 </body>
