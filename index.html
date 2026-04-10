@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統 V9 (內建專業建議)</title>
+    <title>婚禮指揮部系統 V10</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
         .active { display: block; }
         
-        /* 1. 頂部區 (粉色背景) */
+        /* 1. 頂部區 */
         .header-box { background: #fdf2f5; color: #333; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .section-label { font-size: 11px; color: #64748b; margin-bottom: 8px; font-weight: bold; letter-spacing: 1px; }
         
@@ -23,11 +23,13 @@
         .header-row.done { opacity: 0.4; background: rgba(0,0,0,0.05); }
         .checkbox-custom { width: 20px; height: 20px; cursor: pointer; accent-color: #f472b6; }
 
-        /* 3. 按鈕區 */
-        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
+        /* 3. 按鈕區與摺疊邏輯 */
+        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px 15px 5px 15px; }
         .call-btn { background: white; border-radius: 15px; padding: 15px 5px; text-align: center; text-decoration: none; color: #1e293b; border: 1px solid #e2e8f0; font-size: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .call-btn div { font-size: 20px; margin-bottom: 4px; color: #f472b6; }
         .call-btn b { color: #f472b6; }
+        
+        .more-toggle { text-align: center; padding: 5px 15px 15px; color: #f472b6; font-size: 13px; font-weight: bold; cursor: pointer; }
 
         /* 4. 清單區 */
         .section-title { padding: 15px; font-weight: bold; color: #64748b; font-size: 13px; text-transform: uppercase; }
@@ -59,7 +61,12 @@
             <div class="section-label">📍 今日核心行程預覽 (5)</div>
             <div id="header-display"></div>
         </div>
-        <div class="btn-grid" id="contact-display"></div>
+        
+        <div id="contact-area">
+            <div class="btn-grid" id="contact-display"></div>
+            <div class="more-toggle" id="toggle-btn" onclick="toggleContacts()">更多 ></div>
+        </div>
+
         <div class="section-title">物資與備忘清單</div>
         <div id="list-view" class="list-container"></div>
         <div style="background: #fffbeb; border-left: 4px solid #fbbf24; margin: 20px 15px; padding: 15px; border-radius: 0 12px 12px 0; font-size: 13px; color: #92400e;">
@@ -110,7 +117,8 @@
     </nav>
 
     <script>
-        // --- 核心更新：植入預設專業數據 ---
+        let isExpanded = false;
+        
         let defaultDB = {
             headers: [
                 { id: 101, name: "化妝師到達新娘房", time: "06:30", done: false },
@@ -127,12 +135,15 @@
                 { id: 112, name: "入席/婚宴正式開始", time: "20:00", done: false }
             ],
             contacts: [
-                { id: 201, name: "伴郎 (總管)", tel: "請輸入電話" },
-                { id: 202, name: "伴娘 (貼身)", tel: "請輸入電話" },
-                { id: 203, name: "花車司機", tel: "請輸入電話" },
-                { id: 204, name: "化妝師", tel: "請輸入電話" },
-                { id: 205, name: "攝影師/錄像師", tel: "請輸入電話" },
-                { id: 206, name: "婚禮統籌/酒樓經理", tel: "請輸入電話" }
+                { id: 201, name: "伴郎 (總管)", tel: "" },
+                { id: 202, name: "伴娘 (貼身)", tel: "" },
+                { id: 203, name: "證婚律師", tel: "" },
+                { id: 204, name: "新娘媽媽", tel: "" },
+                { id: 205, name: "新郎媽媽", tel: "" },
+                { id: 206, name: "花車司機", tel: "" },
+                { id: 207, name: "化妝師", tel: "" },
+                { id: 208, name: "攝影師", tel: "" },
+                { id: 209, name: "酒樓經理", tel: "" }
             ],
             tasks: [
                 { id: 301, name: "新人身份證 (證婚用)", done: false },
@@ -143,13 +154,13 @@
                 { id: 306, name: "婚紗/晚裝/西裝 (全套)", done: false },
                 { id: 307, name: "平底拖鞋/波鞋 (替換用)", done: false },
                 { id: 308, name: "針線包/安全針", done: false },
-                { id: 309, name: "龍鳳燭/上頭用品 (若適用)", done: false },
+                { id: 309, name: "龍鳳燭/上頭用品", done: false },
                 { id: 310, name: "賓客名單/座位表印本", done: false },
                 { id: 311, name: "USB (早拍晚播/背景音樂)", done: false }
             ]
         };
 
-        let db = JSON.parse(localStorage.getItem('wedding_v9_db')) || defaultDB;
+        let db = JSON.parse(localStorage.getItem('wedding_v10_db')) || defaultDB;
 
         function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -160,7 +171,13 @@
             window.scrollTo(0, 0);
         }
 
+        function toggleContacts() {
+            isExpanded = !isExpanded;
+            renderExec();
+        }
+
         function renderExec() {
+            // 頂部行程
             let allHeaders = [...db.headers].sort((a,b) => a.time.localeCompare(b.time));
             let doneHeaders = allHeaders.filter(h => h.done);
             let todoHeaders = allHeaders.filter(h => !h.done);
@@ -175,10 +192,22 @@
                 </div>
             `).join('');
 
-            document.getElementById('contact-display').innerHTML = db.contacts.map(c => `
+            // 聯絡人按鈕邏輯 (前3或全部)
+            let displayContacts = isExpanded ? db.contacts : db.contacts.slice(0, 3);
+            document.getElementById('contact-display').innerHTML = displayContacts.map(c => `
                 <a href="tel:${c.tel}" class="call-btn"><div>📞</div><b>${c.name}</b></a>
             `).join('');
+            
+            // 更新展開按鈕文字
+            const toggleBtn = document.getElementById('toggle-btn');
+            if (db.contacts.length <= 3) {
+                toggleBtn.style.display = 'none';
+            } else {
+                toggleBtn.style.display = 'block';
+                toggleBtn.innerText = isExpanded ? "< 隱藏" : "更多 >";
+            }
 
+            // 物資清單
             let sortedTasks = [...db.tasks].sort((a,b) => a.done - b.done);
             document.getElementById('list-view').innerHTML = sortedTasks.map(t => `
                 <div class="item-row ${t.done ? 'done' : ''}" onclick="toggleDone('tasks', ${t.id})">
@@ -202,7 +231,7 @@
             document.getElementById('edit-contact-list').innerHTML = db.contacts.map(item => `
                 <div class="edit-row">
                     <input type="text" value="${item.name}" onchange="updateItem('contacts', ${item.id}, 'name', this.value)">
-                    <input type="tel" value="${item.tel}" onchange="updateItem('contacts', ${item.id}, 'tel', this.value)">
+                    <input type="tel" value="${item.tel}" onchange="updateItem('contacts', ${item.id}, 'tel', this.value)" placeholder="電話">
                     <button class="btn-del" onclick="confirmRemove('contacts', ${item.id}, '${item.name}')">刪</button>
                 </div>
             `).join('');
@@ -235,7 +264,7 @@
             item.done = !item.done; renderExec();
         }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v9_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v10_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
