@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>婚禮指揮部系統 V7</title>
+    <title>婚禮指揮部系統 V8</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #fdfafb; margin: 0; padding: 0; color: #1e293b; -webkit-tap-highlight-color: transparent; }
         .page { display: none; padding-bottom: 100px; }
@@ -35,11 +35,27 @@
         .item-row.done .text-zone span { text-decoration: line-through; opacity: 0.5; }
 
         /* 管理頁面樣式 */
+        #adminPage { padding-bottom: 160px; } /* 增加底部間距避免被固定按鈕擋住 */
         .admin-section { background: white; margin: 15px; padding: 15px; border-radius: 16px; border: 1px solid #e2e8f0; }
         .edit-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: center; }
         input { flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; }
         .btn-add { background: #f472b6; color: white; border: none; padding: 12px; border-radius: 8px; font-weight: bold; width: 100%; margin: 10px 0; cursor: pointer; }
         .btn-del { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; }
+
+        /* 固定保存按鈕區域 */
+        .sticky-save-bar { 
+            position: fixed; 
+            bottom: 70px; /* 在導覽列上方 */
+            left: 0; 
+            width: 100%; 
+            padding: 15px; 
+            background: rgba(255, 255, 255, 0.8); 
+            backdrop-filter: blur(10px); 
+            box-sizing: border-box; 
+            border-top: 1px solid #eee; 
+            z-index: 90;
+        }
+        .btn-save { background: #10b981; color: white; border: none; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 16px; width: 100%; cursor: pointer; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
 
         /* 導覽列 */
         .nav-bar { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #e2e8f0; display: flex; height: 70px; z-index: 100; }
@@ -72,11 +88,11 @@
                 <input type="text" id="new-h-name" placeholder="行程名稱">
                 <input type="time" id="new-h-time" style="flex:0.6">
             </div>
-            <button class="btn-add" onclick="addItem('headers')">+ 新增行程</button>
+            <button class="btn-add" onclick="addItem('headers')">+ 新增行程項目</button>
         </div>
 
         <div class="admin-section">
-            <h3>聯絡人管理 (可修改名稱與電話)</h3>
+            <h3>聯絡人管理</h3>
             <div id="edit-contact-list"></div>
             <div class="edit-row">
                 <input type="text" id="new-c-name" placeholder="對象">
@@ -91,10 +107,12 @@
             <div class="edit-row">
                 <input type="text" id="new-t-name" placeholder="物資名稱">
             </div>
-            <button class="btn-add" onclick="addItem('tasks')">+ 新增項目</button>
+            <button class="btn-add" onclick="addItem('tasks')">+ 新增物資項目</button>
         </div>
         
-        <div style="padding: 0 15px 40px;"><button class="btn-add" style="background:#10b981; padding: 18px;" onclick="saveAndGo()">✅ 保存更改並返回</button></div>
+        <div class="sticky-save-bar">
+            <button class="btn-save" onclick="saveAndGo()">✅ 保存更改並返回</button>
+        </div>
     </div>
 
     <nav class="nav-bar">
@@ -103,7 +121,7 @@
     </nav>
 
     <script>
-        let db = JSON.parse(localStorage.getItem('wedding_v7_db')) || {
+        let db = JSON.parse(localStorage.getItem('wedding_v8_db')) || {
             headers: [
                 { id: 1, name: "接新娘儀式", time: "08:30", done: false },
                 { id: 2, name: "敬茶給長輩", time: "09:15", done: false },
@@ -123,6 +141,7 @@
             document.getElementById(id).classList.add('active');
             document.getElementById(id === 'execPage' ? 'nav-home' : 'nav-add').classList.add('active');
             if(id === 'execPage') renderExec(); else renderAdmin();
+            window.scrollTo(0, 0); // 切換頁面回到頂部
         }
 
         function renderExec() {
@@ -156,29 +175,26 @@
         }
 
         function renderAdmin() {
-            // 行程管理編輯
             document.getElementById('edit-header-list').innerHTML = db.headers.map(item => `
                 <div class="edit-row">
                     <input type="text" value="${item.name}" onchange="updateItem('headers', ${item.id}, 'name', this.value)">
                     <input type="time" value="${item.time}" onchange="updateItem('headers', ${item.id}, 'time', this.value)" style="flex:0.6">
-                    <button class="btn-del" onclick="confirmRemove('headers', ${item.id}, '${item.name}')">刪</button>
+                    <button class="btn-del" onclick="confirmRemove('headers', ${item.id}, '${item.name}')">刪除</button>
                 </div>
             `).join('');
 
-            // 聯絡人管理編輯 (關鍵：顯示電話號碼輸入框)
             document.getElementById('edit-contact-list').innerHTML = db.contacts.map(item => `
                 <div class="edit-row">
-                    <input type="text" value="${item.name}" onchange="updateItem('contacts', ${item.id}, 'name', this.value)" placeholder="名字">
-                    <input type="tel" value="${item.tel}" onchange="updateItem('contacts', ${item.id}, 'tel', this.value)" placeholder="電話">
-                    <button class="btn-del" onclick="confirmRemove('contacts', ${item.id}, '${item.name}')">刪</button>
+                    <input type="text" value="${item.name}" onchange="updateItem('contacts', ${item.id}, 'name', this.value)">
+                    <input type="tel" value="${item.tel}" onchange="updateItem('contacts', ${item.id}, 'tel', this.value)">
+                    <button class="btn-del" onclick="confirmRemove('contacts', ${item.id}, '${item.name}')">刪除</button>
                 </div>
             `).join('');
 
-            // 物資清單管理編輯
             document.getElementById('edit-task-list').innerHTML = db.tasks.map(item => `
                 <div class="edit-row">
                     <input type="text" value="${item.name}" onchange="updateItem('tasks', ${item.id}, 'name', this.value)">
-                    <button class="btn-del" onclick="confirmRemove('tasks', ${item.id}, '${item.name}')">刪</button>
+                    <button class="btn-del" onclick="confirmRemove('tasks', ${item.id}, '${item.name}')">刪除</button>
                 </div>
             `).join('');
         }
@@ -199,9 +215,12 @@
             } else { db.tasks.push({ id: Date.now(), name: n, done: false }); }
             document.getElementById(`new-${type[0]}-name`).value = ""; renderAdmin();
         }
-        function toggleDone(type, id) { db[type].find(x => x.id === id).done = !db[type].find(x => x.id === id).done; renderExec(); }
+        function toggleDone(type, id) {
+            const item = db[type].find(x => x.id === id);
+            item.done = !item.done; renderExec();
+        }
         function saveAndGo() { save(); showPage('execPage'); }
-        function save() { localStorage.setItem('wedding_v7_db', JSON.stringify(db)); }
+        function save() { localStorage.setItem('wedding_v8_db', JSON.stringify(db)); }
         renderExec();
     </script>
 </body>
