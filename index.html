@@ -3,143 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>婚禮指揮部</title>
+    <title>婚禮指揮部系統</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        .completed { text-decoration: line-through; opacity: 0.5; }
+        .completed { text-decoration: line-through; opacity: 0.5; background-color: #f9fafb !important; }
         .page { display: none; }
         .page.active { display: block; }
-    </style>
+        .tab-active { color: #4f46e5; border-top: 2px solid #4f46e5; }
+    </script>
 </head>
-<body class="bg-slate-50 min-h-screen pb-20">
+<body class="bg-gray-50 min-h-screen">
 
-    <div class="bg-indigo-700 text-white p-4 sticky top-0 z-50 shadow-md">
-        <div id="countdown" class="text-center font-bold">載入中...</div>
+    <div id="execPage" class="page active pb-24">
+        <div class="bg-indigo-600 text-white p-5 sticky top-0 z-50 shadow-lg text-center">
+            <p id="top-timer" class="font-bold text-lg tracking-wide">
+                [頂部] 當日核心行程：09:00 AM 儀式開始
+            </p>
+        </div>
+
+        <div class="max-w-md mx-auto p-4 space-y-6">
+            <div class="grid grid-cols-3 gap-3">
+                <a href="tel:12345678" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center active:scale-95 transition">
+                    <div class="text-2xl mb-1">📞</div>
+                    <div class="text-xs font-bold text-gray-700">找伴郎</div>
+                </a>
+                <a href="tel:87654321" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center active:scale-95 transition">
+                    <div class="text-2xl mb-1">💄</div>
+                    <div class="text-xs font-bold text-gray-700">找化妝師</div>
+                </a>
+                <a href="tel:99990000" class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 text-center active:scale-95 transition">
+                    <div class="text-2xl mb-1">🚗</div>
+                    <div class="text-xs font-bold text-gray-700">找司機</div>
+                </a>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                    <h2 class="font-bold text-gray-800">📋 清單區</h2>
+                    <span id="progress-text" class="text-xs text-indigo-600 font-medium"></span>
+                </div>
+                <div id="list-container" class="divide-y divide-gray-50">
+                    </div>
+            </div>
+
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl shadow-sm">
+                <div class="flex items-start">
+                    <span class="text-xl mr-3">💡</span>
+                    <div>
+                        <p class="font-bold text-amber-800 text-sm">專家叮嚀：</p>
+                        <p class="text-amber-700 text-xs mt-1 leading-relaxed">記得每小時喝一口水，保持微笑！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="execPage" class="page active max-w-md mx-auto p-4 space-y-6">
-        
-        <div class="grid grid-cols-3 gap-2">
-            <a href="tel:12345678" class="bg-white p-3 rounded-xl shadow-sm border text-center text-sm">
-                <div class="text-xl mb-1">📞</div><div class="font-bold text-indigo-600">找伴郎</div>
-            </a>
-            <a href="tel:87654321" class="bg-white p-3 rounded-xl shadow-sm border text-center text-sm">
-                <div class="text-xl mb-1">💄</div><div class="font-bold text-indigo-600">化妝師</div>
-            </a>
-            <a href="tel:55556666" class="bg-white p-3 rounded-xl shadow-sm border text-center text-sm">
-                <div class="text-xl mb-1">🚗</div><div class="font-bold text-indigo-600">找司機</div>
-            </a>
-        </div>
-
-        <div class="bg-white rounded-2xl p-4 shadow-sm border">
-            <h2 class="font-bold text-lg mb-4 flex items-center">📋 當日清單</h2>
-            <div id="todoContainer" class="space-y-3">
-                </div>
-        </div>
-
-        <div class="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl">
-            <div class="flex">
-                <div class="text-xl mr-3">💡</div>
+    <div id="adminPage" class="page pb-24">
+        <div class="p-6 max-w-md mx-auto">
+            <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+                <span class="mr-2">➕</span> 增加清單內容
+            </h1>
+            
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 space-y-4">
                 <div>
-                    <p class="font-bold text-amber-800 text-sm">專家叮嚀</p>
-                    <p class="text-amber-700 text-xs">記得每小時喝一口水，保持微笑！</p>
+                    <label class="block text-sm font-bold text-gray-600 mb-2">任務描述</label>
+                    <input id="input-task" type="text" placeholder="例如：準備敬茶茶具" 
+                           class="w-full p-4 bg-gray-50 border-none rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
+                <button onclick="addNewTask()" 
+                        class="w-full py-4 bg-indigo-600 text-white rounded-xl font-bold shadow-indigo-200 shadow-lg active:scale-95 transition">
+                    加入清單
+                </button>
+            </div>
+
+            <div class="mt-8 text-center">
+                <p class="text-gray-400 text-xs leading-relaxed">
+                    此頁面增加的內容會自動同步至「指揮部」<br>
+                    數據將儲存於您的手機瀏覽器中
+                </p>
             </div>
         </div>
     </div>
 
-    <div id="adminPage" class="page max-w-md mx-auto p-4">
-        <h2 class="font-bold text-xl mb-6">⚙️ 增加行程內容</h2>
-        <div class="bg-white p-4 rounded-xl shadow-sm border space-y-4">
-            <div>
-                <label class="block text-sm font-medium mb-1">項目名稱</label>
-                <input id="newTodoTitle" type="text" class="w-full p-3 bg-slate-100 rounded-lg" placeholder="例如：準備敬茶茶具">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">時間</label>
-                <input id="newTodoTime" type="time" class="w-full p-3 bg-slate-100 rounded-lg">
-            </div>
-            <button onclick="addTodo()" class="w-full py-3 bg-indigo-600 text-white rounded-lg font-bold">確認新增</button>
-        </div>
-        <p class="text-xs text-slate-400 mt-4 text-center">內容將儲存於此手機瀏覽器</p>
-    </div>
-
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50">
-        <button onclick="showPage('execPage')" class="text-xs font-bold text-indigo-600 text-center">
-            <div class="text-xl">🏠</div>指揮部
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 flex justify-around items-center h-20 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
+        <button onclick="switchPage('execPage')" id="btn-exec" class="flex flex-col items-center space-y-1 tab-active px-6 py-2">
+            <span class="text-2xl">🏛️</span>
+            <span class="text-[10px] font-bold">指揮部</span>
         </button>
-        <button onclick="showPage('adminPage')" class="text-xs font-bold text-slate-500 text-center">
-            <div class="text-xl">➕</div>增加內容
+        <button onclick="switchPage('adminPage')" id="btn-admin" class="flex flex-col items-center space-y-1 text-gray-400 px-6 py-2">
+            <span class="text-2xl">📝</span>
+            <span class="text-[10px] font-bold">增加內容</span>
         </button>
-    </div>
+    </nav>
 
     <script>
-        // 初始數據 (如果本地沒資料則用這個)
-        let todos = JSON.parse(localStorage.getItem('wedding_todos')) || [
-            { id: 1, title: "戒指已交給伴郎", time: "08:00", done: false },
-            { id: 2, title: "儀式開始", time: "09:00", done: false }
+        // 初始化數據
+        let weddingData = JSON.parse(localStorage.getItem('wedding_v2')) || [
+            { id: 1, text: "戒指已交給伴郎", done: true },
+            { id: 2, text: "準備敬茶茶具", done: false }
         ];
 
-        function showPage(pageId) {
+        // 頁面切換
+        function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+            
+            // 更新導覽列顏色
+            document.getElementById('btn-exec').classList.toggle('tab-active', pageId === 'execPage');
+            document.getElementById('btn-exec').classList.toggle('text-gray-400', pageId !== 'execPage');
+            document.getElementById('btn-admin').classList.toggle('tab-active', pageId === 'adminPage');
+            document.getElementById('btn-admin').classList.toggle('text-gray-400', pageId !== 'adminPage');
         }
 
-        function updateCountdown() {
+        // 倒數計時邏輯
+        function runTimer() {
             const target = new Date();
-            target.setHours(9, 0, 0); 
-            const diff = target - new Date();
-            const el = document.getElementById('countdown');
-            if(diff > 0) {
-                const mins = Math.floor(diff/1000/60);
-                el.innerText = `[頂部] 當日核心行程：09:00 AM 儀式開始 (剩 ${mins} 分)`;
+            target.setHours(9, 0, 0); // 設定儀式時間為 09:00 AM
+            
+            const now = new Date();
+            const diff = target - now;
+            const timerEl = document.getElementById('top-timer');
+
+            if (diff > 0) {
+                const mins = Math.floor(diff / 1000 / 60);
+                timerEl.innerText = `[頂部] 當日核心行程：09:00 AM 儀式開始 (剩餘 ${mins} 分鐘)`;
             } else {
-                el.innerText = `✨ 婚禮進行中 | Enjoy Your Day`;
+                timerEl.innerText = `[頂部] 儀式進行中 | 祝新婚快樂 ✨`;
             }
         }
 
-        function renderTodos() {
-            const container = document.getElementById('todoContainer');
-            // 排序：未完成在前
-            todos.sort((a, b) => a.done - b.done);
-            container.innerHTML = todos.map(t => `
-                <div class="flex items-center justify-between p-3 rounded-lg border ${t.done ? 'bg-slate-50 completed' : 'bg-white'}">
-                    <div class="flex items-center space-x-3">
-                        <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTodo(${t.id})" class="w-5 h-5 text-indigo-600">
-                        <span class="text-sm font-medium">${t.title} <span class="text-xs text-slate-400 ml-1">${t.time}</span></span>
-                    </div>
+        // 渲染清單
+        function renderList() {
+            const container = document.getElementById('list-container');
+            // 排序：未完成的排在上方
+            weddingData.sort((a, b) => a.done - b.done);
+
+            container.innerHTML = weddingData.map(item => `
+                <div class="flex items-center p-4 transition-all ${item.done ? 'completed' : 'bg-white'}">
+                    <input type="checkbox" ${item.done ? 'checked' : ''} 
+                           onchange="toggleStatus(${item.id})"
+                           class="w-6 h-6 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                    <span class="ml-4 text-gray-700 font-medium">${item.done ? '✅ ' : '☐ '}${item.text}</span>
                 </div>
             `).join('');
-            localStorage.setItem('wedding_todos', JSON.stringify(todos));
+
+            // 更新進度
+            const doneCount = weddingData.filter(i => i.done).length;
+            document.getElementById('progress-text').innerText = `已完成 ${doneCount}/${weddingData.length}`;
+            
+            // 儲存至本地
+            localStorage.setItem('wedding_v2', JSON.stringify(weddingData));
         }
 
-        function toggleTodo(id) {
-            const todo = todos.find(t => t.id === id);
-            todo.done = !todo.done;
-            renderTodos();
+        // 切換任務狀態
+        function toggleStatus(id) {
+            const item = weddingData.find(i => i.id === id);
+            item.done = !item.done;
+            renderList();
         }
 
-        function addTodo() {
-            const title = document.getElementById('newTodoTitle').value;
-            const time = document.getElementById('newTodoTime').value;
-            if(!title) return alert("請輸入內容");
-            todos.push({ id: Date.now(), title, time, done: false });
-            document.getElementById('newTodoTitle').value = "";
-            renderTodos();
-            showPage('execPage');
+        // 新增任務
+        function addNewTask() {
+            const input = document.getElementById('input-task');
+            if (!input.value.trim()) return alert("請輸入任務內容喔！");
+            
+            weddingData.push({
+                id: Date.now(),
+                text: input.value,
+                done: false
+            });
+            
+            input.value = "";
+            renderList();
+            switchPage('execPage'); // 自動跳轉回首頁查看
         }
 
-        setInterval(updateCountdown, 1000);
-        updateCountdown();
-        renderTodos();
-    </script>
-</body>
-</html>
-
-        // 初始化
-        setInterval(updateTimer, 1000);
-        updateTimer();
-        renderTasks();
+        // 啟動
+        setInterval(runTimer, 1000);
+        runTimer();
+        renderList();
     </script>
 </body>
 </html>
